@@ -1,0 +1,33 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "chu1-testkit",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-05-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "chu1-testkit-db",
+      "database_id": "<D1_DATABASE_ID>"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "AI_RATE_LIMIT",
+      "id": "<KV_NAMESPACE_ID>"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "IMAGES",
+      "bucket_name": "chu1-testkit-images"
+    }
+  ],
+  "vars": {
+    "APP_URL": "http://localhost:3000"
+  }
+}
