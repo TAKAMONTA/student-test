@@ -1,6 +1,6 @@
 # 中1テストキット
 
-中学1年生の1学期中間テスト対策に特化したPWAです。5教科の解説、3択ドリル、AI質問、予想模試、Stripe決済、メールマジックリンク認証を提供します。
+中学1年生の定期テスト対策PWAです。中間・期末に向けた5教科の解説、3択ドリル、AI質問、予想模試、Stripe決済、メールマジックリンク認証を提供します。
 
 ## Stack
 
@@ -49,7 +49,7 @@ npx wrangler whoami
 
 ## Content Seeds
 
-中間範囲の curated コンテンツは以下です。
+中間範囲の curated コンテンツは以下です。期末模試は既存の全25単元から出題できます。期末範囲のcurated置き換えは `seeds/midterm-curated.sql` と同じ形式で段階的に追加します。
 
 ```bash
 seeds/midterm-curated.sql
@@ -95,7 +95,7 @@ Additional manual migration:
 migrations/0001_add_topics_midterm_scope.sql
 ```
 
-`topics.midterm_scope` は予想模試の出題範囲制御に使います。
+`topics.midterm_scope` は中間模試の出題範囲制御に使います。期末模試は全トピックを対象にします。
 
 ## Verification
 
@@ -134,6 +134,7 @@ Expected:
 ## Current Notes
 
 - 中間範囲8トピックは curated seed 適用済み。
+- 期末模試は全25単元から5教科各5問を出題します。
 - 予想模試は `mock_exam_items.user_answer/is_correct` と `mock_exams.finished_at/score` に保存します。
 - AI質問は Anthropic API 残高と `ANTHROPIC_API_KEY` に依存します。
 - git commit は手動で行ってください。

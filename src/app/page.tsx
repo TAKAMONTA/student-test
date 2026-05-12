@@ -17,10 +17,10 @@ export default function LandingPage() {
         <section className="bg-gradient-to-b from-indigo-50 to-white px-6 py-20 text-center">
           <p className="text-indigo-600 font-semibold text-sm mb-3">中学1年生向け</p>
           <h1 className="text-4xl font-bold text-slate-900 leading-tight mb-4">
-            中間テストを<br />しっかり攻略しよう
+            定期テストを<br />しっかり攻略しよう
           </h1>
           <p className="text-slate-600 text-lg mb-8 max-w-md mx-auto">
-            5教科の解説・ドリル・AI個別質問・予想模試がこれ1つで。
+            中間・期末に向けた5教科の解説・ドリル・AI個別質問・予想模試がこれ1つで。
             一度買えばテスト当日まで使い放題。
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -59,7 +59,7 @@ export default function LandingPage() {
               { icon: "📖", title: "解説", desc: "各単元をわかりやすく解説。教科書に沿った内容で予習・復習。" },
               { icon: "✏️", title: "ドリル", desc: "繰り返し解いてマスターレベルを上げる問題演習。" },
               { icon: "🤖", title: "AI個別質問", desc: "わからないことを何でもAIに聞ける。毎日30回まで無料。" },
-              { icon: "📝", title: "予想模試", desc: "テスト7日前から解放。本番形式で総仕上げ。" },
+              { icon: "📝", title: "予想模試", desc: "中間・期末を切り替えて、本番形式で総仕上げ。" },
             ].map((f) => (
               <div key={f.title} className="p-6 rounded-2xl border border-slate-200">
                 <div className="text-3xl mb-3">{f.icon}</div>

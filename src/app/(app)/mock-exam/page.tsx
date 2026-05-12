@@ -20,9 +20,11 @@ type AttemptResult = {
 };
 
 type Phase = "idle" | "running" | "done";
+type ExamScope = "midterm" | "final";
 
 export default function MockExamPage() {
   const [phase, setPhase] = useState<Phase>("idle");
+  const [scope, setScope] = useState<ExamScope>("midterm");
   const [examId, setExamId] = useState<number | null>(null);
   const [questions, setQuestions] = useState<ExamQuestion[]>([]);
   const [index, setIndex] = useState(0);
@@ -38,7 +40,11 @@ export default function MockExamPage() {
     setError("");
     setLockMsg("");
     try {
-      const res = await fetch("/api/mock-exam", { method: "POST" });
+      const res = await fetch("/api/mock-exam", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scope }),
+      });
       const data = (await res.json()) as {
         examId?: number;
         questions?: ExamQuestion[];
@@ -105,12 +111,13 @@ export default function MockExamPage() {
   const currentResult = results[index];
   const question = questions[index];
   const score = results.filter((r) => r.isCorrect).length;
+  const scopeLabel = scope === "midterm" ? "中間" : "期末";
 
   if (phase === "done") {
     return (
       <div className="text-center py-12">
         <div className="text-5xl mb-4">📝</div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">模試終了</h1>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">{scopeLabel}模試終了</h1>
         <p className="text-slate-600 mb-6">
           <span className="text-4xl font-bold text-indigo-600">{score}</span>
           <span className="text-xl text-slate-400"> / {questions.length}</span>
@@ -140,7 +147,7 @@ export default function MockExamPage() {
     return (
       <div>
         <div className="flex items-center justify-between mb-6">
-          <h1 className="font-bold text-slate-900">予想模試</h1>
+          <h1 className="font-bold text-slate-900">{scopeLabel}予想模試</h1>
           <span className="text-sm text-slate-400">{index + 1} / {questions.length}</span>
         </div>
 
@@ -215,8 +222,27 @@ export default function MockExamPage() {
       <div className="text-5xl mb-4">📝</div>
       <h1 className="text-2xl font-bold text-slate-900 mb-3">予想模試</h1>
       <p className="text-slate-600 mb-2 text-sm max-w-xs mx-auto">
-        5教科からランダムに各5問、合計25問の模擬テストです。テストの7日前から受験できます。
+        5教科からランダムに各5問、合計25問の模擬テストです。中間は主要8単元、期末は全25単元から出題します。
       </p>
+      <div className="inline-flex rounded-xl border border-slate-200 bg-white p-1 mt-4">
+        {[
+          { value: "midterm", label: "中間" },
+          { value: "final", label: "期末" },
+        ].map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => setScope(option.value as ExamScope)}
+            className={`px-5 py-2 rounded-lg text-sm font-bold transition-colors ${
+              scope === option.value
+                ? "bg-indigo-600 text-white"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
       {lockMsg && <p className="text-amber-600 text-sm font-medium my-4">{lockMsg}</p>}
       {error && <p className="text-red-600 text-sm my-4">{error}</p>}
       <button
@@ -224,7 +250,7 @@ export default function MockExamPage() {
         disabled={loading || !!lockMsg}
         className="mt-6 bg-indigo-600 text-white font-bold px-10 py-4 rounded-xl text-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
       >
-        {loading ? "準備中…" : "模試を始める"}
+        {loading ? "準備中…" : `${scopeLabel}模試を始める`}
       </button>
     </div>
   );

@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "中1テストキット",
-  description: "中学1年生の中間テスト対策アプリ。5教科の解説・ドリル・AI質問・予想模試。",
+  description: "中学1年生の中間・期末テスト対策アプリ。5教科の解説・ドリル・AI質問・予想模試。",
   manifest: "/manifest.json",
 };
 

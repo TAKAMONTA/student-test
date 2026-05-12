@@ -8,6 +8,10 @@ import { requireAuth, hasPurchase } from "@/lib/auth";
 const QUESTIONS_PER_SUBJECT = 5;
 const UNLOCK_DAYS_BEFORE = 7;
 
+const startSchema = z.object({
+  scope: z.enum(["midterm", "final"]).default("midterm"),
+});
+
 const submitSchema = z.object({
   examId: z.number().int(),
   questionId: z.number().int(),
@@ -24,13 +28,23 @@ export async function GET() {
   return NextResponse.json(exams);
 }
 
-export async function POST() {
+export async function POST(req: Request) {
   const authResult = await requireAuth();
   if (authResult instanceof Response) return authResult;
   const user = authResult;
 
   if (!hasPurchase(user)) {
     return NextResponse.json({ error: "Purchase required" }, { status: 403 });
+  }
+
+  let scope: "midterm" | "final" = "midterm";
+  try {
+    const body = await req.json();
+    const parsed = startSchema.safeParse(body);
+    if (!parsed.success) return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+    scope = parsed.data.scope;
+  } catch {
+    // Allow legacy clients that POST without a body.
   }
 
   const db = getDb();
@@ -54,11 +68,14 @@ export async function POST() {
   const selectedQuestionIds: number[] = [];
 
   for (const subject of allSubjects) {
-    const subjectTopics = await db
-      .select()
-      .from(topics)
-      .where(and(eq(topics.subjectId, subject.id), eq(topics.midtermScope, true)))
-      .all();
+    const subjectTopics =
+      scope === "midterm"
+        ? await db
+            .select()
+            .from(topics)
+            .where(and(eq(topics.subjectId, subject.id), eq(topics.midtermScope, true)))
+            .all()
+        : await db.select().from(topics).where(eq(topics.subjectId, subject.id)).all();
     const topicIds = subjectTopics.map((t) => t.id);
     if (topicIds.length === 0) continue;
 
@@ -97,7 +114,7 @@ export async function POST() {
     .where(inArray(questions.id, selectedQuestionIds))
     .all();
 
-  return NextResponse.json({ examId: exam.id, questions: questionRows });
+  return NextResponse.json({ examId: exam.id, scope, questions: questionRows });
 }
 
 export async function PATCH(req: Request) {
