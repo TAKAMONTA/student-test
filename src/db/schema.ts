@@ -32,6 +32,7 @@ export const topics = sqliteTable("topics", {
   name: text("name").notNull(),
   order: integer("order").notNull(),
   curriculumRef: text("curriculum_ref"),
+  midtermScope: integer("midterm_scope", { mode: "boolean" }).notNull().default(false),
 });
 
 export const lessons = sqliteTable("lessons", {

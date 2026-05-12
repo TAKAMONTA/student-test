@@ -11,7 +11,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 
-  const stripe = new Stripe(stripeSecretKey);
+  const stripe = new Stripe(stripeSecretKey, {
+    httpClient: Stripe.createFetchHttpClient(),
+  });
   const sig = req.headers.get("stripe-signature");
   if (!sig) {
     return NextResponse.json({ error: "Missing signature" }, { status: 400 });
@@ -20,7 +22,13 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event;
   try {
     const body = await req.text();
-    event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
+    event = await stripe.webhooks.constructEventAsync(
+      body,
+      sig,
+      webhookSecret,
+      undefined,
+      Stripe.createSubtleCryptoProvider(),
+    );
   } catch {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
@@ -34,7 +42,7 @@ export async function POST(req: NextRequest) {
       const db = getDb();
       await db
         .update(users)
-        .set({ purchasedAt: now, expiresAt: now + thirtyDays, updatedAt: now })
+        .set({ purchasedAt: new Date(now), expiresAt: new Date(now + thirtyDays), updatedAt: new Date(now) })
         .where(eq(users.id, userId))
         .execute();
     }

@@ -27,7 +27,7 @@ export async function POST(
   const { prompt } = parsed.data;
 
   // Rate limit via KV
-  const { env } = getCloudflareContext<CloudflareEnv>();
+  const { env } = getCloudflareContext();
   const today = new Date().toISOString().slice(0, 10);
   const kvKey = `ai_rate:${user.id}:${today}`;
   const countStr = await env.AI_RATE_LIMIT.get(kvKey);
@@ -84,7 +84,7 @@ export async function POST(
           response: fullResponse,
           tokensIn: inputTokens,
           tokensOut: outputTokens,
-          createdAt: Date.now(),
+          createdAt: new Date(),
         }).execute();
 
         const newCount = count + 1;

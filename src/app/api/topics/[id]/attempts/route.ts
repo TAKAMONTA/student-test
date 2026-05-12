@@ -33,14 +33,13 @@ export async function POST(
   }
 
   const isCorrect = userAnswer.trim() === question.answer.trim();
-  const now = Date.now();
 
   await db.insert(attempts).values({
     userId: user.id,
     questionId,
     userAnswer,
     isCorrect,
-    attemptedAt: now,
+    attemptedAt: new Date(),
   }).execute();
 
   const existing = await db
@@ -55,13 +54,13 @@ export async function POST(
   if (existing) {
     await db
       .update(topicProgress)
-      .set({ masteryLevel, consecutiveCorrect, lastStudiedAt: now })
+      .set({ masteryLevel, consecutiveCorrect, lastStudiedAt: new Date() })
       .where(and(eq(topicProgress.userId, user.id), eq(topicProgress.topicId, topicId)))
       .execute();
   } else {
     await db
       .insert(topicProgress)
-      .values({ userId: user.id, topicId, masteryLevel, consecutiveCorrect, lastStudiedAt: now })
+      .values({ userId: user.id, topicId, masteryLevel, consecutiveCorrect, lastStudiedAt: new Date() })
       .execute();
   }
 

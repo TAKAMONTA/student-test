@@ -15,16 +15,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 
-  const stripe = new Stripe(stripeSecretKey);
-
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${appUrl}/api/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${appUrl}/buy`,
-    customer_email: user.email,
-    metadata: { userId: user.id },
+  const stripe = new Stripe(stripeSecretKey, {
+    httpClient: Stripe.createFetchHttpClient(),
   });
+
+  let session;
+  try {
+    session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${appUrl}/api/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl}/buy`,
+      customer_email: user.email,
+      metadata: { userId: user.id },
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("Stripe session create failed:", msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
 
   return NextResponse.json({ url: session.url });
 }

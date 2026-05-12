@@ -12,13 +12,13 @@
     {
       "binding": "DB",
       "database_name": "chu1-testkit-db",
-      "database_id": "<D1_DATABASE_ID>"
+      "database_id": "125edde7-2413-4330-ac79-15e57c7cb428"
     }
   ],
   "kv_namespaces": [
     {
       "binding": "AI_RATE_LIMIT",
-      "id": "<KV_NAMESPACE_ID>"
+      "id": "8698e77a93da4e6497e2060703e3f007"
     }
   ],
   "r2_buckets": [
@@ -28,6 +28,6 @@
     }
   ],
   "vars": {
-    "APP_URL": "http://localhost:3000"
+    "APP_URL": "https://chu1-testkit.t-nakaima.workers.dev"
   }
 }

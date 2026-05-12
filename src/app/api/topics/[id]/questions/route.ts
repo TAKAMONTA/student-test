@@ -18,7 +18,10 @@ export async function GET(
   const db = getDb();
   const rows = await db.select().from(questions).where(eq(questions.topicId, topicId)).all();
 
-  // Strip answer/explanation — revealed only after attempt
-  const safe = rows.map(({ answer: _a, explanation: _e, ...rest }) => rest);
+  // Strip answer/explanation — revealed only after attempt; rename questionText → text
+  const safe = rows.map(({ answer: _a, explanation: _e, questionText, ...rest }) => ({
+    ...rest,
+    text: questionText,
+  }));
   return NextResponse.json(safe);
 }

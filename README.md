@@ -1,36 +1,139 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 中1テストキット
 
-## Getting Started
+中学1年生の1学期中間テスト対策に特化したPWAです。5教科の解説、3択ドリル、AI質問、予想模試、Stripe決済、メールマジックリンク認証を提供します。
 
-First, run the development server:
+## Stack
+
+- Next.js 16 App Router
+- TypeScript
+- Tailwind CSS
+- Drizzle ORM
+- Cloudflare Workers / D1 / KV / R2 via OpenNext
+- Stripe Checkout
+- Resend magic link auth
+- Anthropic Claude for AI質問
+
+## Setup
+
+```bash
+npm install
+cp .env.local.example .env.local
+```
+
+`.env.local` に少なくとも以下を設定します。
+
+```bash
+JWT_SECRET=
+APP_URL=http://localhost:3000
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PRICE_ID=
+ANTHROPIC_API_KEY=
+CLOUDFLARE_API_TOKEN=
+```
+
+## Development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ローカルでは Cloudflare D1/KV が必要なAPIはそのままでは動かないことがあります。Cloudflare接続の確認:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+set -a && source .env.local && set +a
+npx wrangler whoami
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Content Seeds
 
-## Learn More
+中間範囲の curated コンテンツは以下です。
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+seeds/midterm-curated.sql
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+対象トピック:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `kokugo-1` 説明文の読み方
+- `kokugo-2` 物語文の読み方
+- `kokugo-3` 漢字・語句
+- `sugaku-1` 正の数・負の数
+- `eigo-1` アルファベット・発音
+- `eigo-2` be動詞
+- `rika-1` 植物のからだ
+- `shakai-1` 地球のすがた
 
-## Deploy on Vercel
+各トピック8問、合計64問です。全問3択で、難易度配分はおおむね基礎4・標準3・応用1です。
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Remote D1へ適用:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+set -a && source .env.local && set +a
+npx wrangler d1 execute chu1-testkit-db --remote --file=seeds/midterm-curated.sql
+```
+
+件数確認:
+
+```bash
+npx wrangler d1 execute chu1-testkit-db --remote --json --command="SELECT (SELECT COUNT(*) FROM topics) AS topics, (SELECT COUNT(*) FROM lessons) AS lessons, (SELECT COUNT(*) FROM questions) AS questions, (SELECT COUNT(*) FROM questions WHERE difficulty=1) AS d1, (SELECT COUNT(*) FROM questions WHERE difficulty=2) AS d2, (SELECT COUNT(*) FROM questions WHERE difficulty=3) AS d3;"
+```
+
+## Database
+
+Initial schema:
+
+```bash
+migrations/0000_smiling_moondragon.sql
+```
+
+Additional manual migration:
+
+```bash
+migrations/0001_add_topics_midterm_scope.sql
+```
+
+`topics.midterm_scope` は予想模試の出題範囲制御に使います。
+
+## Verification
+
+```bash
+npx tsc --noEmit
+npm test
+npm run build
+```
+
+## Deploy
+
+```bash
+npm run deploy
+```
+
+公開URL:
+
+```text
+https://chu1-testkit.t-nakaima.workers.dev
+```
+
+Smoke checks:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" https://chu1-testkit.t-nakaima.workers.dev/buy
+curl -s -X POST -o /dev/null -w "checkout(unauth): %{http_code}\n" https://chu1-testkit.t-nakaima.workers.dev/api/stripe/checkout
+curl -s -X PATCH -H "Content-Type: application/json" -d '{"examId":1,"questionId":1,"userAnswer":"x"}' -o /dev/null -w "mock-patch(unauth): %{http_code}\n" https://chu1-testkit.t-nakaima.workers.dev/api/mock-exam
+```
+
+Expected:
+
+- `/buy`: `200`
+- unauthenticated checkout: `401`
+- unauthenticated mock exam PATCH: `401`
+
+## Current Notes
+
+- 中間範囲8トピックは curated seed 適用済み。
+- 予想模試は `mock_exam_items.user_answer/is_correct` と `mock_exams.finished_at/score` に保存します。
+- AI質問は Anthropic API 残高と `ANTHROPIC_API_KEY` に依存します。
+- git commit は手動で行ってください。

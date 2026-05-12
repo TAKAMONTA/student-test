@@ -15,7 +15,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/buy?error=server_error", req.url));
   }
 
-  const stripe = new Stripe(stripeSecretKey);
+  const stripe = new Stripe(stripeSecretKey, {
+    httpClient: Stripe.createFetchHttpClient(),
+  });
   const session = await stripe.checkout.sessions.retrieve(sessionId);
 
   if (session.payment_status !== "paid") {
@@ -33,7 +35,7 @@ export async function GET(req: NextRequest) {
   const db = getDb();
   await db
     .update(users)
-    .set({ purchasedAt: now, expiresAt: now + thirtyDays, updatedAt: now })
+    .set({ purchasedAt: new Date(now), expiresAt: new Date(now + thirtyDays), updatedAt: new Date(now) })
     .where(eq(users.id, userId))
     .execute();
 
