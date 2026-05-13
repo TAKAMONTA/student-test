@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { LEGAL_UPDATED_AT, SERVICE_NAME, SUPPORT_NOTE } from "../../legal-data";
+import {
+  LEGAL_UPDATED_AT,
+  SELLER_NAME,
+  SERVICE_NAME,
+  SUPPORT_EMAIL,
+  SUPPORT_NOTE,
+  SUPPORT_PHONE,
+} from "../../legal-data";
 
 export const metadata = {
   title: `特定商取引法に基づく表記 | ${SERVICE_NAME}`,
@@ -14,8 +21,10 @@ const rows = [
   ["有効期間", "購入日から30日間"],
   ["返品・キャンセル", "デジタルコンテンツの性質上、購入後の返品・キャンセルは原則としてお受けできません。ただし、法令上必要な場合または当方の責めに帰すべき不具合がある場合は個別に対応します。"],
   ["動作環境", "最新版の主要ブラウザを搭載したスマートフォン、タブレット、PC"],
-  ["販売事業者", "請求があった場合、法令に基づき遅滞なく開示します。"],
-  ["所在地・電話番号", "請求があった場合、法令に基づき遅滞なく開示します。"],
+  ["販売事業者", SELLER_NAME],
+  ["所在地", "請求があった場合、法令に基づき遅滞なく開示します。"],
+  ["電話番号", SUPPORT_PHONE],
+  ["メールアドレス", SUPPORT_EMAIL],
   ["お問い合わせ", SUPPORT_NOTE],
 ] as const;
 
@@ -41,7 +50,7 @@ export default function TokushoPage() {
         </div>
 
         <p className="mt-6 text-xs leading-6 text-slate-500">
-          事業者情報の一部は、特定商取引法第11条ただし書に基づき省略しています。請求があった場合には、購入の意思決定に先立って確認できるよう遅滞なく提供します。
+          所在地は、特定商取引法第11条ただし書に基づき省略しています。請求があった場合には、購入の意思決定に先立って確認できるよう遅滞なく提供します。
         </p>
       </article>
     </main>
