@@ -49,10 +49,10 @@ npx wrangler whoami
 
 ## Content Seeds
 
-中間範囲の curated コンテンツは以下です。期末模試は既存の全25単元から出題できます。期末範囲のcurated置き換えは `seeds/midterm-curated.sql` と同じ形式で段階的に追加します。
+商品版の教材コンテンツは以下です。5教科×5単元の全25単元、各単元8問以上、全問3択です。中間範囲8単元は curated コンテンツで上書きし、期末模試は全25単元から出題します。
 
 ```bash
-seeds/midterm-curated.sql
+seeds/complete-content.sql
 ```
 
 対象トピック:
@@ -66,13 +66,14 @@ seeds/midterm-curated.sql
 - `rika-1` 植物のからだ
 - `shakai-1` 地球のすがた
 
-各トピック8問、合計64問です。全問3択で、難易度配分はおおむね基礎4・標準3・応用1です。
+中間範囲は各トピック8問、合計64問です。全問3択で、難易度配分はおおむね基礎4・標準3・応用1です。
 
 Remote D1へ適用:
 
 ```bash
 set -a && source .env.local && set +a
-npx wrangler d1 execute chu1-testkit-db --remote --file=seeds/midterm-curated.sql
+npm run content:check
+npx wrangler d1 execute chu1-testkit-db --remote --file=seeds/complete-content.sql
 ```
 
 件数確認:

@@ -24,13 +24,19 @@ export async function POST(req: NextRequest) {
 
   const secret = process.env["JWT_SECRET"];
   if (!secret) return NextResponse.json({ error: "Server error" }, { status: 500 });
+  const resendApiKey = process.env["RESEND_API_KEY"];
+  const resendFromEmail = process.env["RESEND_FROM_EMAIL"];
+  const appUrl = process.env["APP_URL"];
+  if (!resendApiKey || !resendFromEmail || !appUrl) {
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
 
   const token = await createMagicToken({ email, secret });
-  const url = `${process.env["APP_URL"]}/api/auth/verify?token=${token}`;
+  const url = `${appUrl}/api/auth/verify?token=${token}`;
 
-  const resend = new Resend(process.env["RESEND_API_KEY"]);
+  const resend = new Resend(resendApiKey);
   await resend.emails.send({
-    from: process.env["RESEND_FROM_EMAIL"] ?? "noreply@example.com",
+    from: resendFromEmail,
     to: email,
     subject: "中1テストキット ログインリンク",
     html: `<p><a href="${url}">こちらをクリックしてログイン</a>（15分間有効）</p>`,

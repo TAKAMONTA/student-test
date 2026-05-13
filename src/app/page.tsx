@@ -84,7 +84,18 @@ export default function LandingPage() {
       </main>
 
       <footer className="bg-white border-t border-slate-200 px-6 py-6 text-center text-slate-400 text-sm">
-        © 2026 中1テストキット
+        <div className="mb-3 flex flex-wrap justify-center gap-x-5 gap-y-2">
+          <Link href="/terms" className="hover:text-slate-600">
+            利用規約
+          </Link>
+          <Link href="/privacy" className="hover:text-slate-600">
+            プライバシーポリシー
+          </Link>
+          <Link href="/legal/tokusho" className="hover:text-slate-600">
+            特定商取引法に基づく表記
+          </Link>
+        </div>
+        <p>© 2026 中1テストキット</p>
       </footer>
     </div>
   );

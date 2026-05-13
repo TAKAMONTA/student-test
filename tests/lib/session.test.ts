@@ -12,7 +12,13 @@ describe("session token", () => {
 
   it("rejects tampered tokens", async () => {
     const token = await signSessionToken({ userId: "user-123", secret: SECRET });
-    const tampered = token.slice(0, -1) + (token.endsWith("a") ? "b" : "a");
+    const [header, payload, signature] = token.split(".");
+    const body = JSON.parse(Buffer.from(payload!, "base64url").toString("utf8")) as {
+      userId: string;
+    };
+    body.userId = "attacker";
+    const tamperedPayload = Buffer.from(JSON.stringify(body)).toString("base64url");
+    const tampered = `${header}.${tamperedPayload}.${signature}`;
     await expect(verifySessionToken({ token: tampered, secret: SECRET })).rejects.toThrow();
   });
 });

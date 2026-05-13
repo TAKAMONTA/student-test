@@ -77,6 +77,18 @@ export default function BuyPage() {
           Stripe による安全な決済。購入後すぐに使えます。
         </p>
 
+        <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-slate-400">
+          <Link href="/terms" className="hover:text-slate-600">
+            利用規約
+          </Link>
+          <Link href="/privacy" className="hover:text-slate-600">
+            プライバシーポリシー
+          </Link>
+          <Link href="/legal/tokusho" className="hover:text-slate-600">
+            特商法表記
+          </Link>
+        </div>
+
         <p className="text-center mt-4">
           <Link href="/login" className="text-sm text-indigo-600 hover:underline">
             ログインはこちら

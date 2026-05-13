@@ -4,6 +4,8 @@ import { z } from "zod";
 import { getDb } from "@/db/client";
 import { users, subjects, topics, questions, attempts, mockExams, mockExamItems } from "@/db/schema";
 import { requireAuth, hasPurchase } from "@/lib/auth";
+import { isAnswerCorrect } from "@/lib/answers";
+import { findQuestionPoolProblems, pickQuestionIdsBySubject, type SubjectQuestionPool } from "@/lib/mock-exam";
 
 const QUESTIONS_PER_SUBJECT = 5;
 const UNLOCK_DAYS_BEFORE = 7;
@@ -65,7 +67,7 @@ export async function POST(req: Request) {
   }
 
   const allSubjects = await db.select().from(subjects).all();
-  const selectedQuestionIds: number[] = [];
+  const questionPools: SubjectQuestionPool[] = [];
 
   for (const subject of allSubjects) {
     const subjectTopics =
@@ -77,7 +79,10 @@ export async function POST(req: Request) {
             .all()
         : await db.select().from(topics).where(eq(topics.subjectId, subject.id)).all();
     const topicIds = subjectTopics.map((t) => t.id);
-    if (topicIds.length === 0) continue;
+    if (topicIds.length === 0) {
+      questionPools.push({ subjectId: subject.id, subjectName: subject.name, questionIds: [] });
+      continue;
+    }
 
     const subjectQuestions = await db
       .select({ id: questions.id })
@@ -85,10 +90,26 @@ export async function POST(req: Request) {
       .where(inArray(questions.topicId, topicIds))
       .all();
 
-    const shuffled = subjectQuestions.sort(() => Math.random() - 0.5);
-    const picked = shuffled.slice(0, QUESTIONS_PER_SUBJECT).map((q) => q.id);
-    selectedQuestionIds.push(...picked);
+    questionPools.push({
+      subjectId: subject.id,
+      subjectName: subject.name,
+      questionIds: subjectQuestions.map((q) => q.id),
+    });
   }
+
+  const poolProblems = findQuestionPoolProblems(questionPools, QUESTIONS_PER_SUBJECT);
+  if (poolProblems.length > 0) {
+    return NextResponse.json(
+      {
+        error: "Not enough questions to start mock exam",
+        requiredPerSubject: QUESTIONS_PER_SUBJECT,
+        problems: poolProblems,
+      },
+      { status: 409 },
+    );
+  }
+
+  const selectedQuestionIds = pickQuestionIdsBySubject(questionPools, QUESTIONS_PER_SUBJECT);
 
   const [exam] = await db
     .insert(mockExams)
@@ -150,7 +171,7 @@ export async function PATCH(req: Request) {
   if (!question) return NextResponse.json({ error: "Question not found" }, { status: 404 });
 
   const trimmedAnswer = userAnswer.trim();
-  const isCorrect = trimmedAnswer === question.answer.trim();
+  const isCorrect = isAnswerCorrect(trimmedAnswer, question.answer);
 
   await db
     .update(mockExamItems)

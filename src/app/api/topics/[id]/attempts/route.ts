@@ -4,6 +4,7 @@ import { z } from "zod";
 import { getDb } from "@/db/client";
 import { questions, attempts, topicProgress } from "@/db/schema";
 import { requireAuth } from "@/lib/auth";
+import { isAnswerCorrect } from "@/lib/answers";
 
 const bodySchema = z.object({
   questionId: z.number().int(),
@@ -32,12 +33,13 @@ export async function POST(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const isCorrect = userAnswer.trim() === question.answer.trim();
+  const trimmedAnswer = userAnswer.trim();
+  const isCorrect = isAnswerCorrect(trimmedAnswer, question.answer);
 
   await db.insert(attempts).values({
     userId: user.id,
     questionId,
-    userAnswer,
+    userAnswer: trimmedAnswer,
     isCorrect,
     attemptedAt: new Date(),
   }).execute();
