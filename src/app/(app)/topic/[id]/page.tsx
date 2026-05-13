@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import { getDb } from "@/db/client";
 import { topics, lessons, topicProgress, subjects } from "@/db/schema";
 import { requireAuth } from "@/lib/auth";
+import { emphasizeLessonTerms } from "@/lib/lesson-emphasis";
 
 const MASTERY_LABELS = ["未学習", "初級", "中級", "マスター"] as const;
 
@@ -104,7 +105,7 @@ export default async function TopicPage({
                 hr: () => <hr className="my-4 border-slate-200" />,
               }}
             >
-              {lesson.contentMd}
+              {emphasizeLessonTerms(lesson.contentMd)}
             </ReactMarkdown>
           </div>
         </div>
