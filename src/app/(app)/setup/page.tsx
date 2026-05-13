@@ -42,6 +42,10 @@ export default function SetupPage() {
           <p className="text-sm text-slate-600 mt-2">
             テストの日程を設定して学習を始めましょう
           </p>
+          <p className="text-xs leading-6 text-slate-500 mt-3">
+            ここで入力する日程は、次に受けるテストの日程です。
+            中間テスト対策なら中間テスト日、期末テスト対策なら期末テスト日を設定してください。
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
