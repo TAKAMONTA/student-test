@@ -22,6 +22,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <Link href="/mock-exam" className="text-sm text-slate-600 hover:text-slate-900">
               模試
             </Link>
+            <Link href="/buy" className="text-sm text-slate-600 hover:text-slate-900">
+              購入
+            </Link>
             <Link href="/profile" className="text-sm text-slate-600 hover:text-slate-900">
               設定
             </Link>

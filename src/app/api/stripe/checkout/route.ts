@@ -1,11 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { requireAuth } from "@/lib/auth";
+import { z } from "zod";
+import { getSession, hasPurchase } from "@/lib/auth";
+
+const bodySchema = z.object({
+  email: z.string().email().optional(),
+});
 
 export async function POST(req: NextRequest) {
-  const authResult = await requireAuth();
-  if (authResult instanceof Response) return authResult;
-  const user = authResult;
+  const sessionUser = await getSession();
+  if (sessionUser && hasPurchase(sessionUser)) {
+    return NextResponse.json({ error: "すでに購入済みです" }, { status: 409 });
+  }
+
+  const bodyResult = bodySchema.safeParse(await req.json().catch(() => ({})));
+  if (!bodyResult.success) {
+    return NextResponse.json({ error: "メールアドレスを正しく入力してください" }, { status: 400 });
+  }
+  const email = sessionUser?.email ?? bodyResult.data.email;
+
+  if (!email) {
+    return NextResponse.json({ error: "メールアドレスを入力してください" }, { status: 400 });
+  }
 
   const stripeSecretKey = process.env["STRIPE_SECRET_KEY"];
   const priceId = process.env["STRIPE_PRICE_ID"];
@@ -24,10 +40,13 @@ export async function POST(req: NextRequest) {
     session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${appUrl}/api/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/buy`,
-      customer_email: user.email,
-      metadata: { userId: user.id },
+      customer_email: email,
+      metadata: {
+        email,
+        ...(sessionUser ? { userId: sessionUser.id } : {}),
+      },
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

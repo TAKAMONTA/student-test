@@ -35,12 +35,20 @@ export async function POST(req: NextRequest) {
   const url = `${appUrl}/api/auth/verify?token=${token}`;
 
   const resend = new Resend(resendApiKey);
-  await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from: resendFromEmail,
     to: email,
     subject: "中1テストキット ログインリンク",
     html: `<p><a href="${url}">こちらをクリックしてログイン</a>（15分間有効）</p>`,
   });
+  if (error) {
+    console.error("Resend email send failed:", error);
+    return NextResponse.json({ error: "メール送信に失敗しました" }, { status: 502 });
+  }
+  if (!data?.id) {
+    console.error("Resend email send returned no message id");
+    return NextResponse.json({ error: "メール送信に失敗しました" }, { status: 502 });
+  }
 
   return NextResponse.json({ ok: true });
 }

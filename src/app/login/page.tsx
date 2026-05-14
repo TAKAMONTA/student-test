@@ -38,7 +38,7 @@ export default function LoginPage() {
           <span className="font-bold text-indigo-600 text-2xl">中1テストキット</span>
           <h1 className="mt-4 text-xl font-bold text-slate-900">ログイン</h1>
           <p className="mt-2 text-sm text-slate-600">
-            メールアドレスを入力するとログインリンクを送信します
+            受信できるメールアドレスにログインリンクを送信します
           </p>
         </div>
 
@@ -48,6 +48,9 @@ export default function LoginPage() {
             <p className="font-semibold text-green-800">メールを送信しました</p>
             <p className="text-sm text-green-700 mt-2">
               {email} に届いたリンクをクリックしてください
+            </p>
+            <p className="text-xs text-green-700/80 mt-3 leading-5">
+              届かない場合は迷惑メールフォルダ、入力したメールアドレス、受信拒否設定を確認してください。
             </p>
           </div>
         ) : (

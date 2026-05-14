@@ -2,6 +2,8 @@
 
 中学1年生の定期テスト対策PWAです。中間・期末に向けた5教科の解説、3択ドリル、AI質問、予想模試、Stripe決済、メールマジックリンク認証を提供します。
 
+認証と購入フローの設計方針は [docs/auth-design.md](/Users/taka/中学一年生中間テスト対策/docs/auth-design.md) を正とします。
+
 ## Stack
 
 - Next.js 16 App Router
