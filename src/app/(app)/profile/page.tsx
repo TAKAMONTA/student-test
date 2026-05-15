@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type Profile = {
   testDate: string | null;
@@ -12,12 +13,21 @@ type Profile = {
 const PUBLISHERS = ["東京書籍", "啓林館", "大日本図書", "学校図書", "教育出版"];
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [testDate, setTestDate] = useState("");
   const [publisher, setPublisher] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    setLoggingOut(true);
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/");
+    router.refresh();
+  }
 
   useEffect(() => {
     fetch("/api/profile")
@@ -122,7 +132,18 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="mt-8 text-center">
+      <div className="mt-8">
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="w-full bg-white text-slate-600 font-medium py-3 rounded-xl border border-slate-300 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+        >
+          {loggingOut ? "ログアウト中…" : "ログアウト"}
+        </button>
+      </div>
+
+      <div className="mt-6 text-center">
         <Link href="/home" className="text-sm text-indigo-600 hover:underline">
           ← ホームに戻る
         </Link>
