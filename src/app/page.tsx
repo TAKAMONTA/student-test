@@ -37,7 +37,7 @@ export default function LandingPage() {
               ログイン
             </Link>
           </div>
-          <p className="text-slate-400 text-sm mt-4">買い切り・30日間有効</p>
+          <p className="text-slate-400 text-sm mt-4">買い切り・期限なし</p>
         </section>
 
         {/* Subjects */}

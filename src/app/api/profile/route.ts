@@ -25,7 +25,6 @@ export async function GET() {
     testDate: row.testDate,
     textbookPublisher: row.textbookPublisher,
     purchasedAt: row.purchasedAt,
-    expiresAt: row.expiresAt,
   });
 }
 

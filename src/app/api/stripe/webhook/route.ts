@@ -44,7 +44,6 @@ export async function POST(req: NextRequest) {
         session.metadata?.["email"] ?? session.customer_details?.email ?? session.customer_email ?? null;
 
       const now = Date.now();
-      const thirtyDays = 30 * 24 * 60 * 60 * 1000;
       const db = getDb();
       let user:
         | {
@@ -68,7 +67,7 @@ export async function POST(req: NextRequest) {
       if (user) {
         await db
           .update(users)
-          .set({ purchasedAt: new Date(now), expiresAt: new Date(now + thirtyDays), updatedAt: new Date(now) })
+          .set({ purchasedAt: new Date(now), updatedAt: new Date(now) })
           .where(eq(users.id, user.id))
           .execute();
       } else if (sessionEmail) {
@@ -79,7 +78,6 @@ export async function POST(req: NextRequest) {
             id: newId,
             email: sessionEmail,
             purchasedAt: new Date(now),
-            expiresAt: new Date(now + thirtyDays),
             updatedAt: new Date(now),
           })
           .execute();

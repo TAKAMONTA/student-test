@@ -9,7 +9,6 @@ export type AuthUser = {
   id: string;
   email: string;
   purchasedAt: Date | null;
-  expiresAt: Date | null;
 };
 
 export async function getSession(): Promise<AuthUser | null> {
@@ -35,7 +34,6 @@ export async function getSession(): Promise<AuthUser | null> {
     id: user.id,
     email: user.email,
     purchasedAt: user.purchasedAt ? new Date(user.purchasedAt) : null,
-    expiresAt: user.expiresAt ? new Date(user.expiresAt) : null,
   };
 }
 
@@ -48,7 +46,5 @@ export async function requireAuth(): Promise<AuthUser | Response> {
 }
 
 export function hasPurchase(user: AuthUser): boolean {
-  if (!user.purchasedAt) return false;
-  if (!user.expiresAt) return true;
-  return user.expiresAt > new Date();
+  return Boolean(user.purchasedAt);
 }

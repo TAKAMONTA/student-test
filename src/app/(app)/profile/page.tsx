@@ -7,7 +7,6 @@ type Profile = {
   testDate: string | null;
   textbookPublisher: string | null;
   purchasedAt: number;
-  expiresAt: number;
 };
 
 const PUBLISHERS = ["東京書籍", "啓林館", "大日本図書", "学校図書", "教育出版"];
@@ -62,7 +61,6 @@ export default function ProfilePage() {
   }
 
   const purchasedDate = new Date(profile.purchasedAt).toLocaleDateString("ja-JP");
-  const expiresDate = new Date(profile.expiresAt).toLocaleDateString("ja-JP");
 
   return (
     <div>
@@ -120,7 +118,7 @@ export default function ProfilePage() {
         </div>
         <div className="flex justify-between text-slate-600">
           <span>利用期限</span>
-          <span>{expiresDate}</span>
+          <span>無期限</span>
         </div>
       </div>
 
