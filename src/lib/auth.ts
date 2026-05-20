@@ -45,6 +45,15 @@ export async function requireAuth(): Promise<AuthUser | Response> {
   return user;
 }
 
+export async function requirePurchased(): Promise<AuthUser | Response> {
+  const authResult = await requireAuth();
+  if (authResult instanceof Response) return authResult;
+  if (!hasPurchase(authResult)) {
+    return NextResponse.json({ error: "Purchase required" }, { status: 403 });
+  }
+  return authResult;
+}
+
 export function hasPurchase(user: AuthUser): boolean {
   return Boolean(user.purchasedAt);
 }

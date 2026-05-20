@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { eq, asc } from "drizzle-orm";
 import { getDb } from "@/db/client";
 import { subjects, topics, topicProgress } from "@/db/schema";
-import { requireAuth } from "@/lib/auth";
+import { requirePurchased } from "@/lib/auth";
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
-  const authResult = await requireAuth();
+  const authResult = await requirePurchased();
   if (authResult instanceof Response) return authResult;
   const user = authResult;
 

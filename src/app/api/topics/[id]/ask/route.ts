@@ -5,7 +5,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { getDb } from "@/db/client";
 import { topics, aiChats } from "@/db/schema";
-import { requireAuth } from "@/lib/auth";
+import { requirePurchased } from "@/lib/auth";
 
 const bodySchema = z.object({ prompt: z.string().min(1).max(500) });
 const DAILY_LIMIT = 30;
@@ -14,7 +14,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const authResult = await requireAuth();
+  const authResult = await requirePurchased();
   if (authResult instanceof Response) return authResult;
   const user = authResult;
 

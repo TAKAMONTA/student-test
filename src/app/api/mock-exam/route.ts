@@ -3,7 +3,7 @@ import { eq, and, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { getDb } from "@/db/client";
 import { users, subjects, topics, questions, attempts, mockExams, mockExamItems } from "@/db/schema";
-import { requireAuth, hasPurchase } from "@/lib/auth";
+import { requirePurchased } from "@/lib/auth";
 import { isAnswerCorrect } from "@/lib/answers";
 import { findQuestionPoolProblems, pickQuestionIdsBySubject, type SubjectQuestionPool } from "@/lib/mock-exam";
 
@@ -21,7 +21,7 @@ const submitSchema = z.object({
 });
 
 export async function GET() {
-  const authResult = await requireAuth();
+  const authResult = await requirePurchased();
   if (authResult instanceof Response) return authResult;
   const user = authResult;
 
@@ -31,13 +31,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const authResult = await requireAuth();
+  const authResult = await requirePurchased();
   if (authResult instanceof Response) return authResult;
   const user = authResult;
-
-  if (!hasPurchase(user)) {
-    return NextResponse.json({ error: "Purchase required" }, { status: 403 });
-  }
 
   let scope: "midterm" | "final" = "midterm";
   try {
@@ -139,7 +135,7 @@ export async function POST(req: Request) {
 }
 
 export async function PATCH(req: Request) {
-  const authResult = await requireAuth();
+  const authResult = await requirePurchased();
   if (authResult instanceof Response) return authResult;
   const user = authResult;
 
