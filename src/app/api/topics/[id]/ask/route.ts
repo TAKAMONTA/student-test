@@ -2,10 +2,10 @@ import { NextRequest } from "next/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import Anthropic from "@anthropic-ai/sdk";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { getDb } from "@/db/client";
 import { topics, aiChats } from "@/db/schema";
 import { requirePurchased } from "@/lib/auth";
+import { getUtcDayKey, refundAiQuestion, reserveAiQuestion } from "@/lib/ai-rate-limit";
 
 const bodySchema = z.object({ prompt: z.string().min(1).max(500) });
 const DAILY_LIMIT = 30;
@@ -26,22 +26,25 @@ export async function POST(
   if (!parsed.success) return new Response("Invalid body", { status: 400 });
   const { prompt } = parsed.data;
 
-  // Rate limit via KV
-  const { env } = getCloudflareContext();
-  const today = new Date().toISOString().slice(0, 10);
-  const kvKey = `ai_rate:${user.id}:${today}`;
-  const countStr = await env.AI_RATE_LIMIT.get(kvKey);
-  const count = countStr ? parseInt(countStr, 10) : 0;
-  if (count >= DAILY_LIMIT) {
-    return new Response(JSON.stringify({ error: "Daily limit reached" }), {
-      status: 429,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
   const db = getDb();
   const topic = await db.select().from(topics).where(eq(topics.id, topicId)).get();
   if (!topic) return new Response("Not found", { status: 404 });
+
+  const day = getUtcDayKey();
+  const quota = await reserveAiQuestion(db, {
+    userId: user.id,
+    day,
+    limit: DAILY_LIMIT,
+  });
+  if (!quota.allowed) {
+    return new Response(JSON.stringify({ error: "Daily limit reached" }), {
+      status: 429,
+      headers: {
+        "Content-Type": "application/json",
+        "X-Rate-Limit-Remaining": String(quota.remaining),
+      },
+    });
+  }
 
   const client = new Anthropic({ apiKey: process.env["ANTHROPIC_API_KEY"] });
 
@@ -87,14 +90,9 @@ export async function POST(
           createdAt: new Date(),
         }).execute();
 
-        const newCount = count + 1;
-        const secondsUntilMidnight = 86400 - (Math.floor(Date.now() / 1000) % 86400);
-        await env.AI_RATE_LIMIT.put(kvKey, String(newCount), {
-          expirationTtl: secondsUntilMidnight,
-        });
-
         controller.close();
       } catch (err) {
+        await refundAiQuestion(db, { userId: user.id, day });
         controller.error(err);
       }
     },
@@ -103,7 +101,7 @@ export async function POST(
   return new Response(stream, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
-      "X-Rate-Limit-Remaining": String(DAILY_LIMIT - count - 1),
+      "X-Rate-Limit-Remaining": String(quota.remaining),
     },
   });
 }

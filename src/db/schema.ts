@@ -115,6 +115,23 @@ export const aiChats = sqliteTable("ai_chats", {
     .default(sql`(unixepoch() * 1000)`),
 });
 
+export const aiRateLimits = sqliteTable(
+  "ai_rate_limits",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id),
+    day: text("day").notNull(),
+    count: integer("count").notNull().default(0),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.userId, t.day] }),
+  }),
+);
+
 export const mockExams = sqliteTable("mock_exams", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   userId: text("user_id")
