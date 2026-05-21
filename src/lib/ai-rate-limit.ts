@@ -6,6 +6,10 @@ export function getUtcDayKey(date: Date = new Date()): string {
   return date.toISOString().slice(0, 10);
 }
 
+export function shouldRefundAiQuestion(opts: { deliveredOutput: boolean }): boolean {
+  return !opts.deliveredOutput;
+}
+
 export async function reserveAiQuestion(
   db: Db,
   opts: { userId: string; day: string; limit: number; now?: Date },

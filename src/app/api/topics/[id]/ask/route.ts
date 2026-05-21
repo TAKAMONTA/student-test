@@ -5,7 +5,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { getDb } from "@/db/client";
 import { topics, aiChats } from "@/db/schema";
 import { requirePurchased } from "@/lib/auth";
-import { getUtcDayKey, refundAiQuestion, reserveAiQuestion } from "@/lib/ai-rate-limit";
+import { getUtcDayKey, refundAiQuestion, reserveAiQuestion, shouldRefundAiQuestion } from "@/lib/ai-rate-limit";
 
 const bodySchema = z.object({ prompt: z.string().min(1).max(500) });
 const DAILY_LIMIT = 30;
@@ -56,6 +56,7 @@ export async function POST(
   let fullResponse = "";
   let inputTokens = 0;
   let outputTokens = 0;
+  let deliveredOutput = false;
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -70,6 +71,7 @@ export async function POST(
         for await (const chunk of anthropicStream) {
           if (chunk.type === "content_block_delta" && chunk.delta.type === "text_delta") {
             fullResponse += chunk.delta.text;
+            deliveredOutput = true;
             controller.enqueue(encoder.encode(chunk.delta.text));
           }
           if (chunk.type === "message_delta") {
@@ -92,7 +94,9 @@ export async function POST(
 
         controller.close();
       } catch (err) {
-        await refundAiQuestion(db, { userId: user.id, day });
+        if (shouldRefundAiQuestion({ deliveredOutput })) {
+          await refundAiQuestion(db, { userId: user.id, day });
+        }
         controller.error(err);
       }
     },

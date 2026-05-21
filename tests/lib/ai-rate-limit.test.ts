@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { SQL } from "drizzle-orm";
 import { SQLiteAsyncDialect } from "drizzle-orm/sqlite-core";
-import { getUtcDayKey, refundAiQuestion, reserveAiQuestion } from "@/lib/ai-rate-limit";
+import { getUtcDayKey, shouldRefundAiQuestion, refundAiQuestion, reserveAiQuestion } from "@/lib/ai-rate-limit";
 
 type AiRateLimitRow = {
   user_id: string;
@@ -95,6 +95,11 @@ describe("ai-rate-limit helpers", () => {
   it("builds UTC day keys", () => {
     expect(getUtcDayKey(new Date("2026-05-21T00:30:00.000Z"))).toBe("2026-05-21");
     expect(getUtcDayKey(new Date("2026-05-20T23:59:59.999Z"))).toBe("2026-05-20");
+  });
+
+  it("only refunds when no AI output was delivered", () => {
+    expect(shouldRefundAiQuestion({ deliveredOutput: false })).toBe(true);
+    expect(shouldRefundAiQuestion({ deliveredOutput: true })).toBe(false);
   });
 
   it("reserves AI questions atomically until the daily limit", async () => {
