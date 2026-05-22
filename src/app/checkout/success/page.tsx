@@ -1,11 +1,19 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { CHECKOUT_SUCCESS_COOKIE, isCheckoutSuccessVerified } from "@/lib/checkout-success";
 
 export default async function CheckoutSuccessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ session_id?: string }>;
+  searchParams: Promise<{ verified?: string }>;
 }) {
-  const { session_id: sessionId } = await searchParams;
+  const { verified } = await searchParams;
+  const cookieStore = await cookies();
+  const isVerified = await isCheckoutSuccessVerified({
+    verified,
+    token: cookieStore.get(CHECKOUT_SUCCESS_COOKIE)?.value,
+    secret: process.env["JWT_SECRET"],
+  });
 
   return (
     <div className="min-h-full bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_45%,#ecfeff_100%)] px-4 py-16">
@@ -18,7 +26,13 @@ export default async function CheckoutSuccessPage({
           購入状態はアプリに反映されます。ログインリンクが届いたら、リンクからログインして学習を始めてください。
         </p>
 
-        {sessionId ? <p className="mt-4 rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-500">決済確認済み</p> : null}
+        <p
+          className={`mt-4 rounded-xl px-3 py-2 text-xs ${
+            isVerified ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+          }`}
+        >
+          {isVerified ? "決済確認済み" : "決済確認中です。Stripe画面から戻った場合は数分後にログインしてください。"}
+        </p>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <Link

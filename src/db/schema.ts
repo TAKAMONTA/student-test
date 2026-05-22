@@ -16,6 +16,31 @@ export const users = sqliteTable("users", {
     .default(sql`(unixepoch() * 1000)`),
 });
 
+export const stripePurchases = sqliteTable("stripe_purchases", {
+  sessionId: text("session_id").primaryKey(),
+  eventId: text("event_id").notNull().unique(),
+  userId: text("user_id").references(() => users.id),
+  paymentIntentId: text("payment_intent_id"),
+  amountTotal: integer("amount_total"),
+  currency: text("currency"),
+  purchaseEmail: text("purchase_email"),
+  emailSendStatus: text("email_send_status", {
+    enum: ["skipped", "sending", "sent", "failed"],
+  })
+    .notNull()
+    .default("skipped"),
+  webhookReceivedAt: integer("webhook_received_at", { mode: "timestamp_ms" }).notNull(),
+});
+
+export const rateLimits = sqliteTable("rate_limits", {
+  bucketKey: text("bucket_key").primaryKey(),
+  count: integer("count").notNull().default(0),
+  resetAt: integer("reset_at", { mode: "timestamp_ms" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+});
+
 export const subjects = sqliteTable("subjects", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   slug: text("slug").notNull().unique(),
@@ -105,6 +130,23 @@ export const aiChats = sqliteTable("ai_chats", {
     .notNull()
     .default(sql`(unixepoch() * 1000)`),
 });
+
+export const aiRateLimits = sqliteTable(
+  "ai_rate_limits",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id),
+    day: text("day").notNull(),
+    count: integer("count").notNull().default(0),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.userId, t.day] }),
+  }),
+);
 
 export const mockExams = sqliteTable("mock_exams", {
   id: integer("id").primaryKey({ autoIncrement: true }),

@@ -108,6 +108,29 @@ npm test
 npm run build
 ```
 
+## Security Release Checklist
+
+Before deploying security-sensitive changes:
+
+```bash
+npm test
+npx tsc --noEmit
+npm run content:check
+npm run build
+npx wrangler d1 execute chu1-testkit-db --remote --file=migrations/0002_security_hardening.sql
+npx wrangler d1 execute chu1-testkit-db --remote --file=migrations/0003_ai_rate_limits.sql
+npx wrangler d1 execute chu1-testkit-db --remote --file=migrations/0004_stripe_purchases.sql
+```
+
+Smoke checks:
+
+- Logged-out paid API returns `401`.
+- Logged-in unpaid paid API returns `403`.
+- Logged-in purchased paid API returns `200`.
+- Logout clears cached authenticated pages.
+- Replaying the same Stripe `checkout.session.completed` event does not send another purchase email.
+- AI question number 31 returns `429`.
+
 ## Deploy
 
 ```bash

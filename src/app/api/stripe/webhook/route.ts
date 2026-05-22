@@ -1,11 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { Resend } from "resend";
 import { getDb } from "@/db/client";
-import { users } from "@/db/schema";
+import { stripePurchases, users } from "@/db/schema";
 import { createMagicToken } from "@/lib/magic-link";
+import {
+  claimStripePurchaseEmail,
+  completeStripePurchaseEmail,
+  getCheckoutSessionEmail,
+  getPaymentIntentId,
+  isUnrecoverableStripePurchase,
+  shouldAttemptPurchaseEmail,
+  shouldResumeStripePurchase,
+  type StripePurchaseEmailSendStatus,
+} from "@/lib/stripe-purchase";
 
 export async function POST(req: NextRequest) {
   const stripeSecretKey = process.env["STRIPE_SECRET_KEY"];
@@ -40,48 +50,111 @@ export async function POST(req: NextRequest) {
     const session = event.data.object as Stripe.Checkout.Session;
     if (session.payment_status === "paid") {
       const userId = session.metadata?.["userId"];
-      const sessionEmail =
-        session.metadata?.["email"] ?? session.customer_details?.email ?? session.customer_email ?? null;
+      const sessionEmail = getCheckoutSessionEmail(session);
 
-      const now = Date.now();
+      const receivedAt = new Date();
+      const now = receivedAt.getTime();
       const db = getDb();
+      let duplicateDelivery = false;
+      let existingPurchase:
+        | {
+            userId: string | null;
+            purchaseEmail: string | null;
+            emailSendStatus: StripePurchaseEmailSendStatus;
+          }
+        | undefined;
+      const insertedPurchase = await db
+        .insert(stripePurchases)
+        .values({
+          sessionId: session.id,
+          eventId: event.id,
+          paymentIntentId: getPaymentIntentId(session.payment_intent),
+          amountTotal: session.amount_total,
+          currency: session.currency,
+          purchaseEmail: sessionEmail,
+          webhookReceivedAt: receivedAt,
+        })
+        .onConflictDoNothing()
+        .returning({ sessionId: stripePurchases.sessionId })
+        .get();
+
+      if (!insertedPurchase) {
+        duplicateDelivery = true;
+        existingPurchase = await db
+          .select({
+            userId: stripePurchases.userId,
+            purchaseEmail: stripePurchases.purchaseEmail,
+            emailSendStatus: stripePurchases.emailSendStatus,
+          })
+          .from(stripePurchases)
+          .where(eq(stripePurchases.sessionId, session.id))
+          .get();
+
+        if (!existingPurchase) {
+          console.error("stripe purchase insert conflicted without existing session row", {
+            eventId: event.id,
+            sessionId: session.id,
+          });
+          return NextResponse.json({ error: "Webhook state conflict" }, { status: 500 });
+        }
+
+        const currentPurchaseIdentity = { userId, purchaseEmail: sessionEmail };
+        if (!shouldResumeStripePurchase(existingPurchase, currentPurchaseIdentity)) {
+          if (isUnrecoverableStripePurchase(existingPurchase, currentPurchaseIdentity)) {
+            console.error("stripe purchase duplicate has no recoverable identity", {
+              eventId: event.id,
+              sessionId: session.id,
+            });
+            return NextResponse.json({ error: "Webhook state incomplete" }, { status: 500 });
+          }
+          return NextResponse.json({ received: true, duplicate: true });
+        }
+      }
+
+      const purchaseEmail = sessionEmail ?? existingPurchase?.purchaseEmail ?? null;
+      const purchaseUserId = userId ?? existingPurchase?.userId ?? undefined;
       let user:
         | {
             id: string;
             email: string;
+            purchasedAt: Date | null;
           }
         | undefined;
 
-      if (userId) {
-        user = await db.select({ id: users.id, email: users.email }).from(users).where(eq(users.id, userId)).get();
+      if (purchaseUserId) {
+        user = await db
+          .select({ id: users.id, email: users.email, purchasedAt: users.purchasedAt })
+          .from(users)
+          .where(eq(users.id, purchaseUserId))
+          .get();
       }
 
-      if (!user && sessionEmail) {
+      if (!user && purchaseEmail) {
         user = await db
-          .select({ id: users.id, email: users.email })
+          .select({ id: users.id, email: users.email, purchasedAt: users.purchasedAt })
           .from(users)
-          .where(eq(users.email, sessionEmail))
+          .where(sql`lower(${users.email}) = ${purchaseEmail.toLowerCase()}`)
           .get();
       }
 
       if (user) {
         await db
           .update(users)
-          .set({ purchasedAt: new Date(now), updatedAt: new Date(now) })
+          .set({ purchasedAt: user.purchasedAt ?? new Date(now), updatedAt: new Date(now) })
           .where(eq(users.id, user.id))
           .execute();
-      } else if (sessionEmail) {
+      } else if (purchaseEmail) {
         const newId = nanoid();
         await db
           .insert(users)
           .values({
             id: newId,
-            email: sessionEmail,
+            email: purchaseEmail,
             purchasedAt: new Date(now),
             updatedAt: new Date(now),
           })
           .execute();
-        user = { id: newId, email: sessionEmail };
+        user = { id: newId, email: purchaseEmail, purchasedAt: new Date(now) };
       } else {
         console.error("checkout.session.completed has no user identity", {
           eventId: event.id,
@@ -89,32 +162,54 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // Purchase success must not fail if email delivery fails.
       if (user) {
-        const secret = process.env["JWT_SECRET"];
-        const resendApiKey = process.env["RESEND_API_KEY"];
-        const resendFromEmail = process.env["RESEND_FROM_EMAIL"];
-        const appUrl = process.env["APP_URL"];
-        if (!secret || !resendApiKey || !resendFromEmail || !appUrl) {
-          console.error("purchase mail skipped due to missing env");
-        } else {
-          try {
-            const token = await createMagicToken({ email: user.email, secret });
-            const url = `${appUrl}/api/auth/verify?token=${token}`;
-            const resend = new Resend(resendApiKey);
-            const { data, error } = await resend.emails.send({
-              from: resendFromEmail,
-              to: user.email,
-              subject: "中1テストキット ご購入ありがとうございます",
-              html: `<p>ご購入ありがとうございます。</p><p><a href="${url}">こちらをクリックしてログイン</a>（15分間有効）</p>`,
-            });
-            if (error || !data?.id) {
-              console.error("purchase mail send failed", { error, email: user.email });
+        await db
+          .update(stripePurchases)
+          .set({ userId: user.id, purchaseEmail: purchaseEmail ?? user.email })
+          .where(eq(stripePurchases.sessionId, session.id))
+          .execute();
+      }
+
+      // Purchase success must not fail if email delivery fails.
+      const emailSendStatus: StripePurchaseEmailSendStatus = existingPurchase?.emailSendStatus ?? "skipped";
+      if (user) {
+        const shouldTryEmail = shouldAttemptPurchaseEmail(emailSendStatus);
+        const claimedEmail = shouldTryEmail ? await claimStripePurchaseEmail(db, session.id) : false;
+        if (claimedEmail) {
+          let nextEmailStatus: "sent" | "failed" = "failed";
+          const secret = process.env["JWT_SECRET"];
+          const resendApiKey = process.env["RESEND_API_KEY"];
+          const resendFromEmail = process.env["RESEND_FROM_EMAIL"];
+          const appUrl = process.env["APP_URL"];
+          if (!secret || !resendApiKey || !resendFromEmail || !appUrl) {
+            console.error("purchase mail skipped due to missing env");
+          } else {
+            try {
+              const token = await createMagicToken({ email: user.email, secret });
+              const url = `${appUrl}/api/auth/verify?token=${token}`;
+              const resend = new Resend(resendApiKey);
+              const { data, error } = await resend.emails.send({
+                from: resendFromEmail,
+                to: user.email,
+                subject: "中1テストキット ご購入ありがとうございます",
+                html: `<p>ご購入ありがとうございます。</p><p><a href="${url}">こちらをクリックしてログイン</a>（15分間有効）</p>`,
+              });
+              if (error || !data?.id) {
+                console.error("purchase mail send failed", { error, email: user.email });
+              } else {
+                nextEmailStatus = "sent";
+              }
+            } catch (mailErr) {
+              console.error("purchase mail send exception", { error: String(mailErr) });
             }
-          } catch (mailErr) {
-            console.error("purchase mail send exception", { error: String(mailErr) });
           }
+
+          await completeStripePurchaseEmail(db, { sessionId: session.id, status: nextEmailStatus });
         }
+      }
+
+      if (duplicateDelivery) {
+        return NextResponse.json({ received: true, duplicate: true, resumed: true });
       }
     }
   }

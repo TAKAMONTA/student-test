@@ -3,7 +3,7 @@ import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { getDb } from "@/db/client";
 import { questions, attempts, topicProgress } from "@/db/schema";
-import { requireAuth } from "@/lib/auth";
+import { requirePurchased } from "@/lib/auth";
 import { isAnswerCorrect } from "@/lib/answers";
 
 const bodySchema = z.object({
@@ -15,7 +15,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const authResult = await requireAuth();
+  const authResult = await requirePurchased();
   if (authResult instanceof Response) return authResult;
   const user = authResult;
 

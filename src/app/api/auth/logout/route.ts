@@ -9,5 +9,6 @@ export async function POST() {
     maxAge: 0,
     path: "/",
   });
+  res.headers.set("Clear-Site-Data", '"cache"');
   return res;
 }

@@ -1,16 +1,24 @@
-const CACHE = "testkit-v1";
-const SHELL = ["/", "/home", "/login", "/buy"];
+const CACHE = "testkit-v2";
+const CACHEABLE_PATHS = new Set(["/", "/login", "/buy", "/manifest.json"]);
+
+function isStaticAsset(pathname) {
+  return (
+    pathname.startsWith("/_next/static/") ||
+    pathname.startsWith("/icons/") ||
+    /\.(?:css|js|ico|png|jpg|jpeg|svg|webp|gif|woff2?)$/.test(pathname)
+  );
+}
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll([...CACHEABLE_PATHS])));
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (e) => {
   e.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    )
+      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))),
+    ),
   );
   self.clients.claim();
 });
@@ -18,8 +26,10 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
   const url = new URL(e.request.url);
-  if (url.protocol !== "https:" && url.protocol !== "http:") return;
+  if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith("/api/")) return;
+  if (!CACHEABLE_PATHS.has(url.pathname) && !isStaticAsset(url.pathname)) return;
+
   e.respondWith(
     fetch(e.request)
       .then((res) => {
@@ -29,6 +39,6 @@ self.addEventListener("fetch", (e) => {
         }
         return res;
       })
-      .catch(() => caches.match(e.request))
+      .catch(() => caches.match(e.request)),
   );
 });
