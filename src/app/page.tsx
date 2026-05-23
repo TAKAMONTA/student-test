@@ -1,101 +1,249 @@
 import Link from "next/link";
+import MarketingProductPreview from "@/components/MarketingProductPreview";
 
 const SUBJECTS = ["国語", "数学", "英語", "理科", "社会"];
 
+const OUTCOMES = [
+  {
+    title: "初めての定期テストでも迷わない",
+    body: "中1の1学期で出やすい単元を、5教科まとめて確認できます。今日は何をやるかが見えやすい構成です。",
+  },
+  {
+    title: "解説から演習まで一気通貫",
+    body: "単元の説明を読んで、すぐドリルで確認。間違えたところはAI質問でその場で聞けます。",
+  },
+  {
+    title: "保護者が見ても費用が明快",
+    body: "月額ではなく980円の買い切り。テスト直前だけ使いたい家庭でも始めやすい価格にしています。",
+  },
+];
+
+const INCLUDED = [
+  "5教科25単元の解説",
+  "全201問の3択ドリル",
+  "AI質問 1日30回",
+  "中間・期末の予想模試",
+  "学習進捗とテスト日カウントダウン",
+  "スマホ・PCのブラウザで利用",
+];
+
+const FAQS = [
+  {
+    q: "どの学年・時期向けですか？",
+    a: "中学1年生の中間・期末テスト前を想定しています。英語・数学・国語・理科・社会の基礎固めに使えます。",
+  },
+  {
+    q: "塾に通っていても使えますか？",
+    a: "使えます。塾や学校のワークの前後に、苦手単元の確認と短い演習を足すための補助教材です。",
+  },
+  {
+    q: "購入後はどうやってログインしますか？",
+    a: "購入時のメールアドレスにログインリンクを送ります。パスワードを覚える必要はありません。",
+  },
+  {
+    q: "スマホだけでも使えますか？",
+    a: "使えます。ブラウザで利用できるので、iPhone、Android、PCから学習できます。",
+  },
+];
+
 export default function LandingPage() {
   return (
-    <div className="flex flex-col min-h-full">
-      <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200">
-        <span className="font-bold text-indigo-600 text-lg">中1テストキット</span>
-        <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900">
-          ログイン
-        </Link>
-      </header>
-
-      <main className="flex-1">
-        {/* Hero */}
-        <section className="bg-gradient-to-b from-indigo-50 to-white px-6 py-20 text-center">
-          <p className="text-indigo-600 font-semibold text-sm mb-3">中学1年生向け</p>
-          <h1 className="text-4xl font-bold text-slate-900 leading-tight mb-4">
-            定期テストを<br />しっかり攻略しよう
-          </h1>
-          <p className="text-slate-600 text-lg mb-8 max-w-md mx-auto">
-            中間・期末に向けた5教科の解説・ドリル・AI個別質問・予想模試がこれ1つで。
-            一度買えばテスト当日まで使い放題。
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+    <div className="min-h-full bg-white text-slate-950">
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
+          <Link href="/" className="text-base font-black text-slate-950">
+            中1テストキット
+          </Link>
+          <nav className="flex items-center gap-4 text-sm font-bold">
+            <Link href="/login" className="text-slate-600 hover:text-slate-950">
+              ログイン
+            </Link>
             <Link
               href="/buy"
-              className="inline-block bg-indigo-600 text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-indigo-700 transition-colors"
+              className="rounded-md bg-slate-950 px-4 py-2 text-white transition-colors hover:bg-slate-800"
             >
               980円で始める
             </Link>
-            <Link
-              href="/login"
-              className="inline-block bg-white text-indigo-600 font-semibold px-8 py-4 rounded-xl text-lg border border-indigo-200 hover:bg-indigo-50 transition-colors"
-            >
-              ログイン
-            </Link>
+          </nav>
+        </div>
+      </header>
+
+      <main>
+        <section className="bg-slate-950 text-white">
+          <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:py-14">
+            <div className="max-w-3xl">
+              <p className="mb-4 inline-flex rounded-md border border-white/20 bg-white/10 px-3 py-2 text-xs font-black text-cyan-100">
+                中学1年生の定期テスト対策
+              </p>
+              <h1 className="whitespace-nowrap text-4xl font-black leading-[1.02] tracking-normal sm:text-7xl">
+                中1テストキット
+              </h1>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-200 sm:text-xl">
+                初めての中間・期末テストに向けて、5教科の解説、ドリル、AI質問、予想模試をひとつにまとめました。
+                保護者が買いやすく、子どもが迷わず始めやすいWeb教材です。
+              </p>
+            </div>
+
+            <div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  ["980円", "買い切り・税込"],
+                  ["25単元", "5教科まとめて"],
+                  ["201問", "3択ドリル"],
+                ].map(([value, label]) => (
+                  <div key={value} className="rounded-lg border border-white/15 bg-white/10 p-4">
+                    <p className="text-3xl font-black">{value}</p>
+                    <p className="mt-1 text-sm font-bold text-slate-300">{label}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/buy"
+                  className="rounded-md bg-cyan-300 px-7 py-4 text-center text-base font-black text-slate-950 transition-colors hover:bg-cyan-200"
+                >
+                  購入ページへ
+                </Link>
+                <Link
+                  href="/login"
+                  className="rounded-md border border-white/25 px-7 py-4 text-center text-base font-black text-white transition-colors hover:bg-white/10"
+                >
+                  購入済みの方はログイン
+                </Link>
+              </div>
+            </div>
+
+            <div className="max-w-5xl">
+              <MarketingProductPreview />
+            </div>
           </div>
-          <p className="text-slate-400 text-sm mt-4">買い切り・期限なし</p>
         </section>
 
-        {/* Subjects */}
-        <section className="px-6 py-16 max-w-3xl mx-auto">
-          <h2 className="text-2xl font-bold text-slate-900 text-center mb-8">対応教科</h2>
-          <div className="flex flex-wrap justify-center gap-3">
-            {SUBJECTS.map((s) => (
-              <span key={s} className="px-5 py-2 bg-indigo-100 text-indigo-800 rounded-full font-semibold text-base">
-                {s}
+        <section className="border-y border-slate-200 bg-white px-4 py-5">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-3">
+            {SUBJECTS.map((subject) => (
+              <span
+                key={subject}
+                className="rounded-md border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-black text-slate-800"
+              >
+                {subject}
               </span>
             ))}
           </div>
         </section>
 
-        {/* Features */}
-        <section className="bg-white px-6 py-16">
-          <div className="max-w-3xl mx-auto grid sm:grid-cols-2 gap-6">
-            {[
-              { icon: "📖", title: "解説", desc: "各単元をわかりやすく解説。教科書に沿った内容で予習・復習。" },
-              { icon: "✏️", title: "ドリル", desc: "繰り返し解いてマスターレベルを上げる問題演習。" },
-              { icon: "🤖", title: "AI個別質問", desc: "わからないことを何でもAIに聞ける。毎日30回まで無料。" },
-              { icon: "📝", title: "予想模試", desc: "中間・期末を切り替えて、本番形式で総仕上げ。" },
-            ].map((f) => (
-              <div key={f.title} className="p-6 rounded-2xl border border-slate-200">
-                <div className="text-3xl mb-3">{f.icon}</div>
-                <h3 className="font-bold text-slate-900 text-lg mb-1">{f.title}</h3>
-                <p className="text-slate-600 text-sm">{f.desc}</p>
-              </div>
+        <section className="mx-auto grid max-w-6xl gap-8 px-4 py-16 lg:grid-cols-[0.8fr_1.2fr]">
+          <div>
+            <p className="text-sm font-black text-cyan-700">保護者向け</p>
+            <h2 className="mt-2 text-3xl font-black leading-tight text-slate-950 sm:text-4xl">
+              テスト前の「何からやる？」を減らす
+            </h2>
+            <p className="mt-4 leading-8 text-slate-600">
+              中1の最初の定期テストは、本人も保護者もペースがつかみにくい時期です。
+              中1テストキットは、範囲を細かい単元に分けて、短い学習を積み上げられるようにしています。
+            </p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {OUTCOMES.map((item) => (
+              <article key={item.title} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                <h3 className="text-lg font-black leading-7">{item.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-slate-600">{item.body}</p>
+              </article>
             ))}
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="px-6 py-16 text-center">
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">さあ、始めよう</h2>
-          <p className="text-slate-600 mb-6">クレジットカード1回払い・980円ぽっきり</p>
-          <Link
-            href="/buy"
-            className="inline-block bg-indigo-600 text-white font-bold px-10 py-4 rounded-xl text-lg hover:bg-indigo-700 transition-colors"
-          >
-            購入して始める
-          </Link>
+        <section className="bg-slate-50 px-4 py-16">
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+              <div>
+                <p className="text-sm font-black text-cyan-700">画面イメージ</p>
+                <h2 className="mt-2 text-3xl font-black text-slate-950 sm:text-4xl">
+                  毎日の学習が見える
+                </h2>
+              </div>
+              <p className="max-w-xl leading-8 text-slate-600">
+                進捗、ドリル、AI質問を同じ流れで使えるので、テスト直前でも「解説を読む、問題を解く、質問する」まで進めやすくなります。
+              </p>
+            </div>
+            <MarketingProductPreview />
+          </div>
+        </section>
+
+        <section className="mx-auto grid max-w-6xl gap-8 px-4 py-16 lg:grid-cols-[1fr_0.9fr] lg:items-start">
+          <div>
+            <p className="text-sm font-black text-cyan-700">料金</p>
+            <h2 className="mt-2 text-3xl font-black text-slate-950 sm:text-4xl">
+              980円でテスト前のひと通りを揃える
+            </h2>
+            <p className="mt-4 max-w-2xl leading-8 text-slate-600">
+              月額課金ではありません。中1の定期テスト対策として、必要な解説・演習・質問・模試をまとめて使えます。
+            </p>
+
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              {INCLUDED.map((item) => (
+                <div key={item} className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-bold">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <aside className="rounded-lg border border-slate-300 bg-slate-950 p-6 text-white shadow-xl">
+            <p className="text-sm font-black text-cyan-200">買い切り・税込</p>
+            <div className="mt-3 flex items-end gap-2">
+              <span className="text-6xl font-black tabular-nums">980</span>
+              <span className="pb-2 text-xl font-black">円</span>
+            </div>
+            <p className="mt-4 text-sm leading-7 text-slate-300">
+              Stripeの安全な決済画面で購入します。購入後、メールリンクですぐ学習を始められます。
+            </p>
+            <Link
+              href="/buy"
+              className="mt-6 block rounded-md bg-cyan-300 px-5 py-4 text-center font-black text-slate-950 transition-colors hover:bg-cyan-200"
+            >
+              980円で始める
+            </Link>
+            <p className="mt-4 text-xs leading-6 text-slate-400">
+              決済情報はStripeが処理します。このサービス側ではカード番号を保存しません。
+            </p>
+          </aside>
+        </section>
+
+        <section className="border-t border-slate-200 bg-white px-4 py-16">
+          <div className="mx-auto max-w-4xl">
+            <p className="text-sm font-black text-cyan-700">FAQ</p>
+            <h2 className="mt-2 text-3xl font-black text-slate-950">購入前によくある質問</h2>
+            <div className="mt-8 divide-y divide-slate-200 border-y border-slate-200">
+              {FAQS.map((faq) => (
+                <details key={faq.q} className="group py-5">
+                  <summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-base font-black text-slate-950">
+                    <span>{faq.q}</span>
+                    <span className="text-slate-400 transition-transform group-open:rotate-45">+</span>
+                  </summary>
+                  <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">{faq.a}</p>
+                </details>
+              ))}
+            </div>
+          </div>
         </section>
       </main>
 
-      <footer className="bg-white border-t border-slate-200 px-6 py-6 text-center text-slate-400 text-sm">
-        <div className="mb-3 flex flex-wrap justify-center gap-x-5 gap-y-2">
-          <Link href="/terms" className="hover:text-slate-600">
-            利用規約
-          </Link>
-          <Link href="/privacy" className="hover:text-slate-600">
-            プライバシーポリシー
-          </Link>
-          <Link href="/legal/tokusho" className="hover:text-slate-600">
-            特定商取引法に基づく表記
-          </Link>
+      <footer className="border-t border-slate-200 bg-slate-950 px-4 py-8 text-sm text-slate-300">
+        <div className="mx-auto flex max-w-6xl flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <p className="font-bold">© 2026 中1テストキット</p>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            <Link href="/terms" className="hover:text-white">
+              利用規約
+            </Link>
+            <Link href="/privacy" className="hover:text-white">
+              プライバシーポリシー
+            </Link>
+            <Link href="/legal/tokusho" className="hover:text-white">
+              特定商取引法に基づく表記
+            </Link>
+          </div>
         </div>
-        <p>© 2026 中1テストキット</p>
       </footer>
     </div>
   );

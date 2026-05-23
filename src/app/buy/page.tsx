@@ -2,15 +2,37 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import MarketingProductPreview from "@/components/MarketingProductPreview";
 
-const FEATURES = [
-  { icon: "📖", title: "5教科の解説", desc: "国語・数学・英語・理科・社会の全25単元に対応。" },
-  { icon: "✏️", title: "ドリル演習", desc: "各単元の問題を繰り返し解いて定着度を確認。" },
-  { icon: "🤖", title: "AI個別質問", desc: "つまずいた内容をその場で質問。1日30回まで利用可能。" },
-  { icon: "📝", title: "予想模試", desc: "中間・期末の総仕上げとして本番形式で確認。" },
+const INCLUDED = [
+  "5教科25単元の解説",
+  "全201問の3択ドリル",
+  "AI質問 1日30回",
+  "中間・期末の予想模試",
+  "学習進捗とテスト日カウントダウン",
+  "メールリンク認証",
 ];
 
-const STEPS = ["メール入力", "カード決済", "メール受信", "学習開始"];
+const STEPS = [
+  { title: "メール入力", body: "購入後のログインリンクを受け取るアドレスです。" },
+  { title: "Stripe決済", body: "カード情報はStripeの決済画面で安全に処理されます。" },
+  { title: "学習開始", body: "決済後に届くメールからすぐに使い始められます。" },
+];
+
+const FAQS = [
+  {
+    q: "月額料金はかかりますか？",
+    a: "かかりません。980円の買い切りで利用できます。",
+  },
+  {
+    q: "購入後に何が届きますか？",
+    a: "入力したメールアドレスにログインリンクが届きます。リンクを開くと学習画面に入れます。",
+  },
+  {
+    q: "カード番号は保存されますか？",
+    a: "このサービス側ではカード番号を保存しません。決済はStripeの画面で処理されます。",
+  },
+];
 
 type Profile = {
   email: string;
@@ -81,133 +103,156 @@ export default function BuyPage() {
   }
 
   return (
-    <div className="min-h-full bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_38%,#eef6ff_100%)] text-slate-900">
-      <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-4">
-          <Link href="/" className="font-bold text-indigo-600">
+    <div className="min-h-full bg-white text-slate-950">
+      <header className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
+          <Link href="/" className="font-black text-slate-950">
             中1テストキット
           </Link>
-          <div className="flex items-center gap-4 text-sm">
-            <Link href="/login" className="font-medium text-slate-600 hover:text-slate-900">
+          <div className="flex items-center gap-4 text-sm font-bold">
+            <Link href="/login" className="text-slate-600 hover:text-slate-950">
               ログイン
             </Link>
-            <Link href="/home" className="font-medium text-slate-600 hover:text-slate-900">
+            <Link href="/home" className="text-slate-600 hover:text-slate-950">
               ホーム
             </Link>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto grid w-full max-w-5xl gap-8 px-4 py-10 lg:grid-cols-[1.05fr_0.95fr] lg:py-14">
-        <section className="flex flex-col justify-center">
-          <p className="mb-4 inline-flex w-fit rounded-full bg-slate-900 px-4 py-2 text-sm font-bold text-white">
-            購入ページ
-          </p>
-          <h1 className="text-3xl font-black leading-tight text-slate-950 sm:text-5xl">
-            中間・期末テスト対策を
-            <br />
-            ぜんぶまとめて使う
-          </h1>
-          <p className="mt-5 max-w-xl text-base leading-8 text-slate-600">
-            5教科の解説、単元ドリル、AI質問、予想模試をひとつにまとめた中学1年生向けの定期テスト対策アプリです。
-          </p>
+      <main>
+        <section className="border-b border-slate-200 bg-slate-50 px-4 py-12 sm:py-16">
+          <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+            <div>
+              <p className="mb-4 inline-flex rounded-md bg-slate-950 px-3 py-2 text-xs font-black text-white">
+                購入内容の確認
+              </p>
+              <h1 className="max-w-3xl text-4xl font-black leading-tight text-slate-950 sm:text-6xl">
+                中1の定期テスト対策を980円で始める
+              </h1>
+              <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
+                5教科の解説、ドリル、AI質問、予想模試をまとめて使えます。購入後はメールリンクでログインし、
+                スマホやPCのブラウザから学習できます。
+              </p>
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
-            {FEATURES.map((feature) => (
-              <div key={feature.title} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-2xl">
-                  {feature.icon}
-                </div>
-                <h2 className="font-bold text-slate-900">{feature.title}</h2>
-                <p className="mt-1 text-sm leading-6 text-slate-600">{feature.desc}</p>
+              <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                {INCLUDED.map((item) => (
+                  <div key={item} className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-black">
+                    {item}
+                  </div>
+                ))}
               </div>
-            ))}
+
+              <div className="mt-8">
+                <MarketingProductPreview compact />
+              </div>
+            </div>
+
+            <aside className="rounded-lg border border-slate-300 bg-white p-5 shadow-xl shadow-slate-200/70 sm:p-6">
+              <div className="border-b border-slate-200 pb-5">
+                <p className="text-sm font-black text-cyan-700">買い切り・税込</p>
+                <div className="mt-2 flex items-end gap-2">
+                  <span className="text-6xl font-black tabular-nums">980</span>
+                  <span className="pb-2 text-xl font-black">円</span>
+                </div>
+                <p className="mt-3 text-sm leading-7 text-slate-600">
+                  月額料金はありません。Stripeの決済画面に移動して購入します。
+                </p>
+              </div>
+
+              <div className="mt-5 grid gap-3">
+                {STEPS.map((step, index) => (
+                  <div key={step.title} className="grid grid-cols-[2.25rem_1fr] gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-md bg-slate-950 text-sm font-black text-white">
+                      {index + 1}
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-black text-slate-950">{step.title}</h2>
+                      <p className="mt-1 text-xs leading-5 text-slate-600">{step.body}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {isPurchased ? (
+                <div className="mt-6 rounded-lg border border-emerald-200 bg-emerald-50 p-5">
+                  <p className="font-black text-emerald-900">このアカウントは購入済みです</p>
+                  <p className="mt-2 text-sm leading-6 text-emerald-800">
+                    追加購入は不要です。ホームから学習を続けられます。
+                  </p>
+                  <Link
+                    href="/home"
+                    className="mt-4 inline-flex w-full items-center justify-center rounded-md bg-emerald-600 px-4 py-3 font-black text-white hover:bg-emerald-700"
+                  >
+                    ホームへ戻る
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  <div className="mt-6">
+                    <label htmlFor="purchase-email" className="mb-2 block text-sm font-black text-slate-700">
+                      ログインリンクを受け取るメールアドレス
+                    </label>
+                    <input
+                      id="purchase-email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      className="w-full rounded-md border border-slate-300 px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+
+                  {error && <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+
+                  <button
+                    onClick={handlePurchase}
+                    disabled={loading || checking}
+                    className="mt-5 w-full rounded-md bg-cyan-500 px-5 py-4 text-lg font-black text-slate-950 shadow-lg shadow-cyan-100 transition-colors hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {checking ? "確認中..." : loading ? "決済画面を準備中..." : "980円で購入する"}
+                  </button>
+
+                  <p className="mt-4 text-center text-xs leading-5 text-slate-500">
+                    決済後、このメールアドレスにログインリンクを送信します。
+                  </p>
+                </>
+              )}
+
+              <div className="mt-5 flex flex-wrap justify-center gap-x-4 gap-y-2 border-t border-slate-200 pt-5 text-xs font-bold text-slate-500">
+                <Link href="/terms" className="hover:text-slate-900">
+                  利用規約
+                </Link>
+                <Link href="/privacy" className="hover:text-slate-900">
+                  プライバシーポリシー
+                </Link>
+                <Link href="/legal/tokusho" className="hover:text-slate-900">
+                  特商法表記
+                </Link>
+              </div>
+            </aside>
           </div>
         </section>
 
-        <aside className="rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl shadow-slate-200/70 sm:p-8">
-          <div className="rounded-2xl bg-slate-950 p-6 text-white">
-            <p className="text-sm font-bold text-cyan-300">買い切り・期限なし</p>
-            <div className="mt-3 flex items-end gap-2">
-              <span className="text-6xl font-black tracking-normal">980</span>
-              <span className="pb-2 text-xl font-bold">円</span>
-              <span className="pb-2 text-sm text-slate-300">税込</span>
+        <section className="px-4 py-14">
+          <div className="mx-auto max-w-4xl">
+            <p className="text-sm font-black text-cyan-700">FAQ</p>
+            <h2 className="mt-2 text-3xl font-black">購入前の確認</h2>
+            <div className="mt-6 divide-y divide-slate-200 border-y border-slate-200">
+              {FAQS.map((faq) => (
+                <details key={faq.q} className="group py-5">
+                  <summary className="flex cursor-pointer list-none items-start justify-between gap-4 font-black">
+                    <span>{faq.q}</span>
+                    <span className="text-slate-400 transition-transform group-open:rotate-45">+</span>
+                  </summary>
+                  <p className="mt-3 text-sm leading-7 text-slate-600">{faq.a}</p>
+                </details>
+              ))}
             </div>
-            <p className="mt-4 text-sm leading-6 text-slate-300">
-              Stripeの決済画面に移動します。購入完了後、ログインリンクをメールで送信します。
-            </p>
           </div>
-
-          <div className="mt-6 grid grid-cols-4 gap-2">
-            {STEPS.map((step, index) => (
-              <div key={step} className="rounded-xl bg-slate-50 px-2 py-3 text-center">
-                <div className="mx-auto mb-2 flex h-7 w-7 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
-                  {index + 1}
-                </div>
-                <p className="text-xs font-bold leading-5 text-slate-700">{step}</p>
-              </div>
-            ))}
-          </div>
-
-          {isPurchased ? (
-            <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-              <p className="font-bold text-emerald-900">このアカウントは購入済みです</p>
-              <p className="mt-2 text-sm leading-6 text-emerald-800">
-                追加購入は不要です。ホームから学習を続けられます。
-              </p>
-              <Link
-                href="/home"
-                className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 font-bold text-white hover:bg-emerald-700"
-              >
-                ホームへ戻る
-              </Link>
-            </div>
-          ) : (
-            <>
-              <div className="mt-6">
-                <label htmlFor="purchase-email" className="mb-2 block text-sm font-bold text-slate-700">
-                  購入後にログインリンクを受け取るメールアドレス
-                </label>
-                <input
-                  id="purchase-email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
-                  className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-
-              {error && <p className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
-
-              <button
-                onClick={handlePurchase}
-                disabled={loading || checking}
-                className="mt-6 w-full rounded-2xl bg-indigo-600 px-5 py-4 text-lg font-black text-white shadow-lg shadow-indigo-200 transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {checking ? "確認中..." : loading ? "決済画面を準備中..." : "980円で購入する"}
-              </button>
-
-              <p className="mt-4 text-center text-xs leading-5 text-slate-500">
-                決済後、このメールアドレスにログインリンクを送信します。
-              </p>
-            </>
-          )}
-
-          <div className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 border-t border-slate-200 pt-5 text-xs text-slate-500">
-            <Link href="/terms" className="hover:text-slate-700">
-              利用規約
-            </Link>
-            <Link href="/privacy" className="hover:text-slate-700">
-              プライバシーポリシー
-            </Link>
-            <Link href="/legal/tokusho" className="hover:text-slate-700">
-              特商法表記
-            </Link>
-          </div>
-        </aside>
+        </section>
       </main>
     </div>
   );
