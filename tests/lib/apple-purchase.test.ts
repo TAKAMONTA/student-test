@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { verifyApplePurchaseForUser, type ApplePurchaseDb } from "@/lib/apple-purchase";
+import {
+  verifyApplePurchaseForUser,
+  type ApplePurchaseDb,
+  type ApplePurchaseRecord,
+} from "@/lib/apple-purchase";
 
 const signedTransactionInfo = "header.payload.signature";
 const transaction = {
@@ -15,12 +19,15 @@ const transaction = {
 
 class MemoryApplePurchaseDb implements ApplePurchaseDb {
   users = new Map<string, { purchasedAt: Date | null }>();
-  purchases: unknown[] = [];
+  purchaseOwners = new Map<string, string>();
+  purchases: ApplePurchaseRecord[] = [];
   updates: Array<{ userId: string; purchasedAt: Date }> = [];
 
-  constructor() {
+  constructor(existingPurchases: Record<string, string> = {}) {
     this.users.set("user_1", { purchasedAt: null });
     this.users.set("purchased_user", { purchasedAt: new Date("2026-05-01T00:00:00.000Z") });
+    this.users.set("other_user", { purchasedAt: null });
+    this.purchaseOwners = new Map(Object.entries(existingPurchases));
   }
 
   async getUser(userId: string) {
@@ -28,8 +35,14 @@ class MemoryApplePurchaseDb implements ApplePurchaseDb {
     return user ? { id: userId, purchasedAt: user.purchasedAt } : null;
   }
 
-  async recordApplePurchase(record: unknown) {
+  async recordApplePurchase(record: ApplePurchaseRecord) {
+    const existingUserId = this.purchaseOwners.get(record.transaction.transactionId);
+    if (existingUserId) {
+      return { userId: existingUserId };
+    }
+    this.purchaseOwners.set(record.transaction.transactionId, record.userId);
     this.purchases.push(record);
+    return { userId: record.userId };
   }
 
   async markUserPurchased(userId: string, purchasedAt: Date) {
@@ -53,7 +66,15 @@ describe("apple purchase grant orchestration", () => {
     });
 
     expect(result).toEqual({ ok: true, purchasedAt: transaction.purchaseDate });
-    expect(db.purchases).toHaveLength(1);
+    expect(db.purchases).toEqual([
+      {
+        userId: "user_1",
+        transaction,
+        source: "purchase",
+        signedTransactionInfo,
+        notificationType: null,
+      },
+    ]);
     expect(db.updates).toEqual([{ userId: "user_1", purchasedAt: transaction.purchaseDate }]);
   });
 
@@ -75,8 +96,28 @@ describe("apple purchase grant orchestration", () => {
     expect(db.updates).toEqual([]);
   });
 
+  it("rejects a transaction already recorded for another user", async () => {
+    const db = new MemoryApplePurchaseDb({ tx_1: "other_user" });
+
+    await expect(
+      verifyApplePurchaseForUser({
+        userId: "user_1",
+        source: "purchase",
+        signedTransactionInfo,
+        deps: {
+          db,
+          fetchAndValidateTransaction: async () => ({ signedTransactionInfo, transaction }),
+        },
+      }),
+    ).rejects.toThrow("apple transaction belongs to another user");
+
+    expect(db.purchases).toEqual([]);
+    expect(db.updates).toEqual([]);
+  });
+
   it("rejects missing users", async () => {
     const db = new MemoryApplePurchaseDb();
+    let validatorCalls = 0;
 
     await expect(
       verifyApplePurchaseForUser({
@@ -85,9 +126,16 @@ describe("apple purchase grant orchestration", () => {
         signedTransactionInfo,
         deps: {
           db,
-          fetchAndValidateTransaction: async () => ({ signedTransactionInfo, transaction }),
+          fetchAndValidateTransaction: async () => {
+            validatorCalls += 1;
+            return { signedTransactionInfo, transaction };
+          },
         },
       }),
     ).rejects.toThrow("apple purchase user not found");
+
+    expect(validatorCalls).toBe(0);
+    expect(db.purchases).toEqual([]);
+    expect(db.updates).toEqual([]);
   });
 });

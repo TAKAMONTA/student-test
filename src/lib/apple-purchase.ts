@@ -2,7 +2,7 @@ import type { AppleIapSource, ValidAppleTransaction } from "@/lib/apple-iap";
 
 export type ApplePurchaseDb = {
   getUser(userId: string): Promise<{ id: string; purchasedAt: Date | null } | null>;
-  recordApplePurchase(record: ApplePurchaseRecord): Promise<void>;
+  recordApplePurchase(record: ApplePurchaseRecord): Promise<{ userId: string }>;
   markUserPurchased(userId: string, purchasedAt: Date): Promise<void>;
 };
 
@@ -33,13 +33,16 @@ export async function verifyApplePurchaseForUser(opts: {
 
   const { signedTransactionInfo, transaction } = await opts.deps.fetchAndValidateTransaction(opts.signedTransactionInfo);
 
-  await opts.deps.db.recordApplePurchase({
+  const recordedPurchase = await opts.deps.db.recordApplePurchase({
     userId: opts.userId,
     transaction,
     source: opts.source,
     signedTransactionInfo,
     notificationType: null,
   });
+  if (recordedPurchase.userId !== opts.userId) {
+    throw new Error("apple transaction belongs to another user");
+  }
 
   if (user.purchasedAt) {
     return { ok: true, purchasedAt: user.purchasedAt };
