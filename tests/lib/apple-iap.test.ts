@@ -106,8 +106,9 @@ describe("apple iap helpers", () => {
 
   it("fetches official transaction info from the sandbox API", async () => {
     const serverJws = unsignedJws(validPayload);
-    const fetchImpl = vi.fn(
-      async () => new Response(JSON.stringify({ signedTransactionInfo: serverJws }), { status: 200 }),
+    const fetchImpl = vi.fn<typeof fetch>(
+      async (_input, _init) =>
+        new Response(JSON.stringify({ signedTransactionInfo: serverJws }), { status: 200 }),
     );
 
     const result = await fetchAppleTransactionInfo({
@@ -116,6 +117,7 @@ describe("apple iap helpers", () => {
       issuerId: "issuer-id",
       keyId: "key-id",
       bundleId: "jp.taka.chu1testkit",
+      productId: "chu1_testkit_lifetime",
       privateKey: [
         "-----BEGIN PRIVATE KEY-----",
         "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgLEdCuaTk3TcDquw3",

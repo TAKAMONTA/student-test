@@ -91,7 +91,7 @@ export function validateAppleLifetimeTransaction(
   if (typeof payload.purchaseDate !== "number") {
     throw new Error("apple transaction purchase date missing");
   }
-  if (payload.revocationDate) {
+  if (typeof payload.revocationDate === "number") {
     throw new Error("apple transaction is revoked");
   }
 
@@ -133,9 +133,12 @@ export async function fetchAppleTransactionInfo(
   const transactionId = extractTransactionIdFromSignedTransactionInfo(opts.signedTransactionInfo);
   const token = await createAppStoreServerJwt(opts);
   const fetchImpl = opts.fetchImpl ?? fetch;
-  const res = await fetchImpl(`${appStoreServerBaseUrl(opts.environment)}/inApps/v1/transactions/${transactionId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await fetchImpl(
+    `${appStoreServerBaseUrl(opts.environment)}/inApps/v1/transactions/${encodeURIComponent(transactionId)}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
 
   if (!res.ok) {
     throw new Error(`apple transaction lookup failed: ${res.status}`);
