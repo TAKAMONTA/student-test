@@ -32,6 +32,33 @@ export const stripePurchases = sqliteTable("stripe_purchases", {
   webhookReceivedAt: integer("webhook_received_at", { mode: "timestamp_ms" }).notNull(),
 });
 
+export const applePurchases = sqliteTable("apple_purchases", {
+  transactionId: text("transaction_id").primaryKey(),
+  originalTransactionId: text("original_transaction_id"),
+  webOrderLineItemId: text("web_order_line_item_id"),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id),
+  productId: text("product_id").notNull(),
+  environment: text("environment", {
+    enum: ["Production", "Sandbox", "Xcode"],
+  }).notNull(),
+  purchaseDate: integer("purchase_date", { mode: "timestamp_ms" }).notNull(),
+  revocationDate: integer("revocation_date", { mode: "timestamp_ms" }),
+  revocationReason: integer("revocation_reason"),
+  signedTransactionInfo: text("signed_transaction_info").notNull(),
+  source: text("source", {
+    enum: ["purchase", "restore", "update", "notification"],
+  }).notNull(),
+  notificationType: text("notification_type"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+});
+
 export const rateLimits = sqliteTable("rate_limits", {
   bucketKey: text("bucket_key").primaryKey(),
   count: integer("count").notNull().default(0),
