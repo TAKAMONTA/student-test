@@ -258,6 +258,7 @@ App Store Server Notifications -> `/api/apple/iap/notifications` -> `apple_purch
 
 追加する環境変数:
 
+- `APPLE_TEAM_ID`
 - `APPLE_BUNDLE_ID`
 - `APPLE_IAP_PRODUCT_ID`
 - `APPLE_APP_STORE_ENVIRONMENT`
