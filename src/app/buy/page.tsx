@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import MarketingProductPreview from "@/components/MarketingProductPreview";
+import { isIosAppUserAgent } from "@/lib/ios-app";
 
 const INCLUDED = [
   "5教科25単元の解説",
@@ -39,11 +40,26 @@ type Profile = {
   purchasedAt: number | null;
 };
 
+type IosBridgeMessage = { type: "purchase" } | { type: "restore" };
+
+declare global {
+  interface Window {
+    webkit?: {
+      messageHandlers?: {
+        iap?: {
+          postMessage: (message: IosBridgeMessage) => void;
+        };
+      };
+    };
+  }
+}
+
 export default function BuyPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
   const [isPurchased, setIsPurchased] = useState(false);
+  const [isIosApp, setIsIosApp] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -69,6 +85,20 @@ export default function BuyPage() {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    setIsIosApp(isIosAppUserAgent(window.navigator.userAgent));
+  }, []);
+
+  function sendIosPurchaseMessage(type: "purchase" | "restore") {
+    if (!window.webkit?.messageHandlers?.iap) {
+      setError("iOSアプリ内で購入を開始できませんでした。アプリを再起動してからもう一度お試しください。");
+      return;
+    }
+
+    setError("");
+    window.webkit.messageHandlers.iap.postMessage({ type });
+  }
 
   async function handlePurchase() {
     const normalizedEmail = email.trim();
@@ -156,7 +186,9 @@ export default function BuyPage() {
                   <span className="pb-2 text-xl font-black">円</span>
                 </div>
                 <p className="mt-3 text-sm leading-7 text-slate-600">
-                  月額料金はありません。Stripeの決済画面に移動して購入します。
+                  {isIosApp
+                    ? "月額料金はありません。App Storeの購入画面で買い切りアクセスを購入します。"
+                    : "月額料金はありません。Stripeの決済画面に移動して購入します。"}
                 </p>
               </div>
 
@@ -189,35 +221,63 @@ export default function BuyPage() {
                 </div>
               ) : (
                 <>
-                  <div className="mt-6">
-                    <label htmlFor="purchase-email" className="mb-2 block text-sm font-black text-slate-700">
-                      ログインリンクを受け取るメールアドレス
-                    </label>
-                    <input
-                      id="purchase-email"
-                      type="email"
-                      autoComplete="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="your@email.com"
-                      className="w-full rounded-md border border-slate-300 px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                    />
-                  </div>
+                  {isIosApp ? (
+                    <>
+                      {error && <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
 
-                  {error && <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+                      <button
+                        onClick={() => sendIosPurchaseMessage("purchase")}
+                        disabled={checking}
+                        className="mt-5 w-full rounded-md bg-cyan-500 px-5 py-4 text-lg font-black text-slate-950 shadow-lg shadow-cyan-100 transition-colors hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {checking ? "確認中..." : "App Storeで購入"}
+                      </button>
 
-                  <button
-                    onClick={handlePurchase}
-                    disabled={loading || checking}
-                    className="mt-5 w-full rounded-md bg-cyan-500 px-5 py-4 text-lg font-black text-slate-950 shadow-lg shadow-cyan-100 transition-colors hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {checking ? "確認中..." : loading ? "決済画面を準備中..." : "980円で購入する"}
-                  </button>
+                      <button
+                        onClick={() => sendIosPurchaseMessage("restore")}
+                        disabled={checking}
+                        className="mt-3 w-full rounded-md border border-slate-300 bg-white px-5 py-3 font-black text-slate-800 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        購入を復元
+                      </button>
 
-                  <p className="mt-4 text-center text-xs leading-5 text-slate-500">
-                    決済後、このメールアドレスにログインリンクを送信します。
-                  </p>
+                      <p className="mt-4 text-center text-xs leading-5 text-slate-500">
+                        購入と復元はApp Storeの仕組みを使います。
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="mt-6">
+                        <label htmlFor="purchase-email" className="mb-2 block text-sm font-black text-slate-700">
+                          ログインリンクを受け取るメールアドレス
+                        </label>
+                        <input
+                          id="purchase-email"
+                          type="email"
+                          autoComplete="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="your@email.com"
+                          className="w-full rounded-md border border-slate-300 px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                        />
+                      </div>
+
+                      {error && <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+
+                      <button
+                        onClick={handlePurchase}
+                        disabled={loading || checking}
+                        className="mt-5 w-full rounded-md bg-cyan-500 px-5 py-4 text-lg font-black text-slate-950 shadow-lg shadow-cyan-100 transition-colors hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {checking ? "確認中..." : loading ? "決済画面を準備中..." : "980円で購入する"}
+                      </button>
+
+                      <p className="mt-4 text-center text-xs leading-5 text-slate-500">
+                        決済後、このメールアドレスにログインリンクを送信します。
+                      </p>
+                    </>
+                  )}
                 </>
               )}
 
