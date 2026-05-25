@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		456045215AAD174E10D717C1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C14FF3E2EC6884A07FE78505 /* Assets.xcassets */; };
+		55D66981F1B842D3DB4450B7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = BCFC1F1CE0D98670213E9C9D /* PrivacyInfo.xcprivacy */; };
+		A79BAC601EC76F9EA688EFA0 /* Chu1TestKitApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 826F8F0D77E85425E6FE2C4F /* Chu1TestKitApp.swift */; };
+		BA03BED1C1FFA44169CA4543 /* AppConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8CEBACD4DC56E93EF30B2E /* AppConfigTests.swift */; };
+		FAC372654FEBF369D1744672 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB85713E590AC16421EE6ED /* AppConfig.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -21,9 +25,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		050DCAECBD622416C37CF89F /* Chu1TestKit.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Chu1TestKit.entitlements; sourceTree = "<group>"; };
 		11AF649AFE80F586262069AC /* Chu1TestKitTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = Chu1TestKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		66393DDC01A64BC2979C3E94 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		826F8F0D77E85425E6FE2C4F /* Chu1TestKitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chu1TestKitApp.swift; sourceTree = "<group>"; };
+		8E8CEBACD4DC56E93EF30B2E /* AppConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfigTests.swift; sourceTree = "<group>"; };
+		8EB85713E590AC16421EE6ED /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
 		A429F78998EAEFD5635862D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		BCFC1F1CE0D98670213E9C9D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		BEBD840F071EDBDC62C06C3E /* Chu1TestKit.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Chu1TestKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C14FF3E2EC6884A07FE78505 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -50,8 +59,12 @@
 		9FAC99B965923CA638288603 /* Chu1TestKit */ = {
 			isa = PBXGroup;
 			children = (
+				8EB85713E590AC16421EE6ED /* AppConfig.swift */,
 				C14FF3E2EC6884A07FE78505 /* Assets.xcassets */,
+				050DCAECBD622416C37CF89F /* Chu1TestKit.entitlements */,
+				826F8F0D77E85425E6FE2C4F /* Chu1TestKitApp.swift */,
 				66393DDC01A64BC2979C3E94 /* Info.plist */,
+				BCFC1F1CE0D98670213E9C9D /* PrivacyInfo.xcprivacy */,
 			);
 			path = Chu1TestKit;
 			sourceTree = "<group>";
@@ -59,6 +72,7 @@
 		EA1EF2C4AE1A941A06C5DCD7 /* Chu1TestKitTests */ = {
 			isa = PBXGroup;
 			children = (
+				8E8CEBACD4DC56E93EF30B2E /* AppConfigTests.swift */,
 				A429F78998EAEFD5635862D1 /* Info.plist */,
 			);
 			path = Chu1TestKitTests;
@@ -140,6 +154,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				456045215AAD174E10D717C1 /* Assets.xcassets in Resources */,
+				55D66981F1B842D3DB4450B7 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -150,6 +165,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAC372654FEBF369D1744672 /* AppConfig.swift in Sources */,
+				A79BAC601EC76F9EA688EFA0 /* Chu1TestKitApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -157,6 +174,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA03BED1C1FFA44169CA4543 /* AppConfigTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
