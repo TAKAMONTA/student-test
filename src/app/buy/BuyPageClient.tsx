@@ -164,6 +164,7 @@ export default function BuyPageClient({ initialIsIosApp }: { initialIsIosApp: bo
     }
   }
 
+  const isIosAuthPending = isIosApp && checking && !isAuthenticated;
   const isIosLoginRequired = isIosApp && !checking && !isAuthenticated;
   const displaySteps = isIosApp ? IOS_STEPS : WEB_STEPS;
   const displayFaqs = isIosApp ? IOS_FAQS : WEB_FAQS;
@@ -264,7 +265,14 @@ export default function BuyPageClient({ initialIsIosApp }: { initialIsIosApp: bo
                 </div>
               ) : (
                 <>
-                  {isIosLoginRequired ? (
+                  {isIosAuthPending ? (
+                    <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-5">
+                      <p className="font-black text-slate-950">購入状態を確認中</p>
+                      <p className="mt-2 text-sm leading-6 text-slate-700">
+                        ログイン状態を確認しています。確認が終わるまで購入操作は表示されません。
+                      </p>
+                    </div>
+                  ) : isIosLoginRequired ? (
                     <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-5">
                       <p className="font-black text-amber-950">購入前にログインしてください</p>
                       <p className="mt-2 text-sm leading-6 text-amber-900">

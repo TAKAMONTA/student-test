@@ -23,6 +23,8 @@ describe("buy page ios purchase mode", () => {
 
     expect(text).toContain("isAuthenticated");
     expect(text).toContain("if (!isAuthenticated)");
+    expect(text).toContain("isIosAuthPending");
+    expect(text).toContain("購入状態を確認中");
     expect(text).toContain("isIosLoginRequired");
     expect(text).toContain("ログインしてから購入する");
     expect(text).toContain("const displaySteps = isIosApp ? IOS_STEPS : WEB_STEPS");
