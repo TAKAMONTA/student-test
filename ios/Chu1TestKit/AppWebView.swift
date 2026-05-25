@@ -4,12 +4,12 @@ import WebKit
 struct AppWebView: UIViewRepresentable {
     @ObservedObject var model: WebViewModel
     let config: AppConfig
-    let onBridgeMessage: (IAPBridgeMessage) -> Void
+    let onBridgeMessage: (IAPBridgeMessage, [HTTPCookie]) -> Void
 
     init(
         model: WebViewModel,
         config: AppConfig,
-        onBridgeMessage: @escaping (IAPBridgeMessage) -> Void = { _ in }
+        onBridgeMessage: @escaping (IAPBridgeMessage, [HTTPCookie]) -> Void = { _, _ in }
     ) {
         self.model = model
         self.config = config
@@ -44,16 +44,20 @@ struct AppWebView: UIViewRepresentable {
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         private let model: WebViewModel
-        private let onBridgeMessage: (IAPBridgeMessage) -> Void
+        private let onBridgeMessage: (IAPBridgeMessage, [HTTPCookie]) -> Void
 
-        init(model: WebViewModel, onBridgeMessage: @escaping (IAPBridgeMessage) -> Void) {
+        init(model: WebViewModel, onBridgeMessage: @escaping (IAPBridgeMessage, [HTTPCookie]) -> Void) {
             self.model = model
             self.onBridgeMessage = onBridgeMessage
         }
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             guard message.name == "iap", let bridgeMessage = IAPBridgeMessage(body: message.body) else { return }
-            onBridgeMessage(bridgeMessage)
+            WKWebsiteDataStore.default().httpCookieStore.getAllCookies { cookies in
+                DispatchQueue.main.async {
+                    self.onBridgeMessage(bridgeMessage, cookies)
+                }
+            }
         }
 
         func webView(
@@ -67,6 +71,16 @@ struct AppWebView: UIViewRepresentable {
             }
 
             decisionHandler(model.canOpen(url) ? .allow : .cancel)
+        }
+    }
+}
+
+extension WKHTTPCookieStore {
+    func allCookies() async -> [HTTPCookie] {
+        await withCheckedContinuation { continuation in
+            getAllCookies { cookies in
+                continuation.resume(returning: cookies)
+            }
         }
     }
 }

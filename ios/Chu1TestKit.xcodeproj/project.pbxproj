@@ -12,6 +12,7 @@
 		4F4B83CACEBA866440DDBD14 /* AppleIAPVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BBB09512193B006DE862EF /* AppleIAPVerifier.swift */; };
 		55D66981F1B842D3DB4450B7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = BCFC1F1CE0D98670213E9C9D /* PrivacyInfo.xcprivacy */; };
 		5A3733E7101571F9566781A6 /* AppleIAPVerifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B81BA5ED4500E21763FF160F /* AppleIAPVerifierTests.swift */; };
+		744FFE89B4C6AE88303A6410 /* IAPController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B541534C29A58BECC445C49 /* IAPController.swift */; };
 		8709D8EE13ED2FB9DC8EA92A /* IAPBridgeMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C01A1E615B81A042728BB9F /* IAPBridgeMessageTests.swift */; };
 		A5EDB9A05B14DD278CA7C277 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5228BB264741A4D1D42F53D6 /* ContentView.swift */; };
 		A79BAC601EC76F9EA688EFA0 /* Chu1TestKitApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 826F8F0D77E85425E6FE2C4F /* Chu1TestKitApp.swift */; };
@@ -40,6 +41,7 @@
 		598E9B6801DC946824E631A5 /* IAPBridgeMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPBridgeMessage.swift; sourceTree = "<group>"; };
 		66393DDC01A64BC2979C3E94 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6C01A1E615B81A042728BB9F /* IAPBridgeMessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPBridgeMessageTests.swift; sourceTree = "<group>"; };
+		7B541534C29A58BECC445C49 /* IAPController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPController.swift; sourceTree = "<group>"; };
 		826F8F0D77E85425E6FE2C4F /* Chu1TestKitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chu1TestKitApp.swift; sourceTree = "<group>"; };
 		89BBB09512193B006DE862EF /* AppleIAPVerifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIAPVerifier.swift; sourceTree = "<group>"; };
 		8E8CEBACD4DC56E93EF30B2E /* AppConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfigTests.swift; sourceTree = "<group>"; };
@@ -83,6 +85,7 @@
 				826F8F0D77E85425E6FE2C4F /* Chu1TestKitApp.swift */,
 				5228BB264741A4D1D42F53D6 /* ContentView.swift */,
 				598E9B6801DC946824E631A5 /* IAPBridgeMessage.swift */,
+				7B541534C29A58BECC445C49 /* IAPController.swift */,
 				66393DDC01A64BC2979C3E94 /* Info.plist */,
 				BCFC1F1CE0D98670213E9C9D /* PrivacyInfo.xcprivacy */,
 				018AFF2FDC2A5AD1A9E0AC97 /* WebViewModel.swift */,
@@ -195,6 +198,7 @@
 				A79BAC601EC76F9EA688EFA0 /* Chu1TestKitApp.swift in Sources */,
 				A5EDB9A05B14DD278CA7C277 /* ContentView.swift in Sources */,
 				F3C83D2FB82E0CDA61A37E1B /* IAPBridgeMessage.swift in Sources */,
+				744FFE89B4C6AE88303A6410 /* IAPController.swift in Sources */,
 				FEF057688DAF328C8BAC4480 /* WebViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
