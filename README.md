@@ -134,6 +134,24 @@ Smoke checks:
 ## iOS App Store Preparation
 
 iOS IAP readiness is tracked in [docs/release/2026-05-24-ios-iap-readiness.md](/Users/taka/中学一年生中間テスト対策/docs/release/2026-05-24-ios-iap-readiness.md).
+The native shell release notes are in [docs/release/2026-05-25-ios-native-shell.md](/Users/taka/中学一年生中間テスト対策/docs/release/2026-05-25-ios-native-shell.md).
+
+Native build/test:
+
+```bash
+cd ios
+xcodegen generate
+xcodebuild -project Chu1TestKit.xcodeproj -scheme Chu1TestKit -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
+xcodebuild -project Chu1TestKit.xcodeproj -scheme Chu1TestKit -destination 'platform=iOS Simulator,name=iPhone 17' CODE_SIGNING_ALLOWED=NO test
+```
+
+App Store Connect setup:
+
+- Bundle ID: `jp.taka.chu1testkit`
+- Associated Domains: `applinks:chu1-testkit.t-nakaima.workers.dev`
+- Non-consumable IAP product ID: `chu1_testkit_lifetime`
+- App Store Server Notifications V2: `/api/apple/iap/notifications`
+- Sandbox tester for purchase and restore checks
 
 ## Deploy
 
