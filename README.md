@@ -131,6 +131,10 @@ Smoke checks:
 - Replaying the same Stripe `checkout.session.completed` event does not send another purchase email.
 - AI question number 31 returns `429`.
 
+## iOS App Store Preparation
+
+iOS IAP readiness is tracked in [docs/release/2026-05-24-ios-iap-readiness.md](/Users/taka/中学一年生中間テスト対策/docs/release/2026-05-24-ios-iap-readiness.md).
+
 ## Deploy
 
 ```bash
