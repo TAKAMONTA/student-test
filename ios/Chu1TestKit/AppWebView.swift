@@ -1,0 +1,72 @@
+import SwiftUI
+import WebKit
+
+struct AppWebView: UIViewRepresentable {
+    @ObservedObject var model: WebViewModel
+    let config: AppConfig
+    let onBridgeMessage: (Any) -> Void
+
+    init(
+        model: WebViewModel,
+        config: AppConfig,
+        onBridgeMessage: @escaping (Any) -> Void = { _ in }
+    ) {
+        self.model = model
+        self.config = config
+        self.onBridgeMessage = onBridgeMessage
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(model: model, onBridgeMessage: onBridgeMessage)
+    }
+
+    func makeUIView(context: Context) -> WKWebView {
+        let configuration = WKWebViewConfiguration()
+        configuration.applicationNameForUserAgent = config.iosUserAgentToken
+        configuration.websiteDataStore = .default()
+        configuration.userContentController.add(context.coordinator, name: "iap")
+
+        let webView = WKWebView(frame: .zero, configuration: configuration)
+        webView.navigationDelegate = context.coordinator
+        webView.load(URLRequest(url: model.currentURL))
+        return webView
+    }
+
+    func updateUIView(_ webView: WKWebView, context: Context) {
+        guard webView.url != model.currentURL else { return }
+        webView.load(URLRequest(url: model.currentURL))
+    }
+
+    static func dismantleUIView(_ webView: WKWebView, coordinator: Coordinator) {
+        webView.navigationDelegate = nil
+        webView.configuration.userContentController.removeScriptMessageHandler(forName: "iap")
+    }
+
+    final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
+        private let model: WebViewModel
+        private let onBridgeMessage: (Any) -> Void
+
+        init(model: WebViewModel, onBridgeMessage: @escaping (Any) -> Void) {
+            self.model = model
+            self.onBridgeMessage = onBridgeMessage
+        }
+
+        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            guard message.name == "iap" else { return }
+            onBridgeMessage(message.body)
+        }
+
+        func webView(
+            _ webView: WKWebView,
+            decidePolicyFor navigationAction: WKNavigationAction,
+            decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+        ) {
+            guard let url = navigationAction.request.url else {
+                decisionHandler(.cancel)
+                return
+            }
+
+            decisionHandler(model.canOpen(url) ? .allow : .cancel)
+        }
+    }
+}
