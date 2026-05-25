@@ -36,6 +36,8 @@
 - Create: `ios/Chu1TestKit/Info.plist`
 - Create: `ios/Chu1TestKit/Assets.xcassets/Contents.json`
 - Create: `ios/Chu1TestKit/Assets.xcassets/AccentColor.colorset/Contents.json`
+- Create: `ios/Chu1TestKit/Assets.xcassets/AppIcon.appiconset/Contents.json`
+- Create: `ios/Chu1TestKit/Assets.xcassets/AppIcon.appiconset/Icon-1024.png`
 - Create: `ios/Chu1TestKitTests/Info.plist`
 - Modify: `.gitignore`
 
@@ -107,7 +109,7 @@ Create `ios/Chu1TestKit/Info.plist`:
 
 Create `ios/Chu1TestKitTests/Info.plist` with an empty dictionary plist.
 
-Create asset catalog `Contents.json` files with `{"info":{"author":"xcode","version":1}}`.
+Create asset catalog `Contents.json` files with `{"info":{"author":"xcode","version":1}}`, and create an `AppIcon.appiconset` using `public/icon-512.png` resized to `Icon-1024.png`.
 
 - [ ] **Step 3: Ignore derived iOS outputs**
 
@@ -501,4 +503,3 @@ git status --short
 ```
 
 Expected: only pre-existing unrelated untracked files remain.
-

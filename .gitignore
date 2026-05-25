@@ -45,3 +45,10 @@ next-env.d.ts
 .dev.vars
 .wrangler
 .open-next
+
+# xcode
+ios/.build/
+ios/DerivedData/
+ios/*.xcworkspace/xcuserdata/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcodeproj/project.xcworkspace/xcuserdata/
