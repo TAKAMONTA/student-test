@@ -6,6 +6,8 @@ import { applePurchases } from "@/db/schema";
 import {
   decodeAppleNotificationPayload,
   normalizeAppleNotification,
+  readAppleNotificationConfig,
+  validateAppleNotificationForApp,
 } from "@/lib/apple-notifications";
 
 const bodySchema = z.object({
@@ -25,11 +27,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
+  let notification;
   try {
-    const decoded = decodeAppleNotificationPayload(parsed.data.signedPayload);
-    const notification = normalizeAppleNotification(decoded);
-    const db = getDb();
+    const config = readAppleNotificationConfig();
+    notification = validateAppleNotificationForApp(
+      normalizeAppleNotification(decodeAppleNotificationPayload(parsed.data.signedPayload)),
+      config,
+    );
+  } catch (err) {
+    console.error("apple notification validation failed", {
+      error: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json({ error: "Invalid notification" }, { status: 400 });
+  }
 
+  try {
+    const db = getDb();
     await db.update(applePurchases)
       .set({
         revocationDate: notification.revocationDate,
@@ -43,9 +56,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("apple notification handling failed", {
+    console.error("apple notification persistence failed", {
       error: err instanceof Error ? err.message : String(err),
     });
-    return NextResponse.json({ error: "Invalid notification" }, { status: 400 });
+    return NextResponse.json({ error: "Notification persistence failed" }, { status: 500 });
   }
 }

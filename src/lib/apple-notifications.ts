@@ -23,11 +23,18 @@ export type NormalizedAppleNotification = {
   transactionId: string;
   originalTransactionId: string | null;
   webOrderLineItemId: string | null;
+  bundleId: string;
   productId: string;
   environment: AppleIapEnvironment;
   purchaseDate: Date;
   revocationDate: Date | null;
   revocationReason: number | null;
+};
+
+export type AppleNotificationConfig = {
+  bundleId: string;
+  productId: string;
+  environment: AppleIapEnvironment;
 };
 
 function normalizeEnvironment(environment: unknown): AppleIapEnvironment {
@@ -66,6 +73,9 @@ export function normalizeAppleNotification(
   if (!tx.productId) {
     throw new Error("apple notification product id missing");
   }
+  if (!tx.bundleId) {
+    throw new Error("apple notification bundle id missing");
+  }
   if (typeof tx.purchaseDate !== "number") {
     throw new Error("apple notification purchase date missing");
   }
@@ -76,10 +86,43 @@ export function normalizeAppleNotification(
     transactionId: tx.transactionId,
     originalTransactionId: tx.originalTransactionId ?? null,
     webOrderLineItemId: tx.webOrderLineItemId ?? null,
+    bundleId: tx.bundleId,
     productId: tx.productId,
     environment: normalizeEnvironment(tx.environment),
     purchaseDate: new Date(tx.purchaseDate),
     revocationDate: typeof tx.revocationDate === "number" ? new Date(tx.revocationDate) : null,
     revocationReason: tx.revocationReason ?? null,
+  };
+}
+
+export function validateAppleNotificationForApp(
+  notification: NormalizedAppleNotification,
+  config: AppleNotificationConfig,
+): NormalizedAppleNotification {
+  if (notification.bundleId !== config.bundleId) {
+    throw new Error("apple notification bundle mismatch");
+  }
+  if (notification.productId !== config.productId) {
+    throw new Error("apple notification product mismatch");
+  }
+  if (notification.environment !== config.environment) {
+    throw new Error("apple notification environment mismatch");
+  }
+  return notification;
+}
+
+export function readAppleNotificationConfig(): AppleNotificationConfig {
+  const bundleId = process.env["APPLE_BUNDLE_ID"];
+  const productId = process.env["APPLE_IAP_PRODUCT_ID"];
+  const environment = process.env["APPLE_APP_STORE_ENVIRONMENT"];
+
+  if (!bundleId || !productId || !environment) {
+    throw new Error("apple notification environment is incomplete");
+  }
+
+  return {
+    bundleId,
+    productId,
+    environment: normalizeEnvironment(environment),
   };
 }

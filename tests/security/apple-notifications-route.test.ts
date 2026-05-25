@@ -13,7 +13,11 @@ describe("apple notification route", () => {
     expect(text).toContain("signedPayload");
     expect(text).toContain("decodeAppleNotificationPayload");
     expect(text).toContain("normalizeAppleNotification");
+    expect(text).toContain("validateAppleNotificationForApp");
+    expect(text).toContain("readAppleNotificationConfig");
     expect(text).toContain("db.update(applePurchases)");
     expect(text).toContain("NextResponse.json({ ok: true })");
+    expect(text).toContain("Notification persistence failed");
+    expect(text).toContain("{ status: 500 }");
   });
 });
