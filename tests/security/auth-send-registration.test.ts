@@ -11,8 +11,12 @@ describe("auth send registration behavior", () => {
     const text = source("src/app/api/auth/send/route.ts");
 
     expect(text).toContain("nanoid");
-    expect(text).toContain("db.insert(users)");
-    expect(text).toContain("const loginUser = existing ??");
+    expect(text).toContain(".insert(users)");
+    expect(text).toContain("onConflictDoNothing");
+    expect(text).toContain("const loginUser = await");
+    expect(text).toContain("if (existing) return existing");
+    expect(text).toContain("if (inserted) return inserted");
+    expect(text).toContain("if (conflicted) return conflicted");
     expect(text).toContain("sendLoginEmail({");
     expect(text).toContain("email: loginUser.email");
   });

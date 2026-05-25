@@ -46,19 +46,26 @@ export async function POST(req: NextRequest) {
     .where(sql`lower(${users.email}) = ${email}`)
     .get();
 
-  const loginUser = existing ?? {
-    id: nanoid(),
-    email,
-  };
+  const loginUser = await (async () => {
+    if (existing) return existing;
 
-  if (!existing) {
-    await db.insert(users)
-      .values({
-        id: loginUser.id,
-        email: loginUser.email,
-      })
-      .execute();
-  }
+    const inserted = await db
+      .insert(users)
+      .values({ id: nanoid(), email })
+      .onConflictDoNothing()
+      .returning({ id: users.id, email: users.email })
+      .get();
+    if (inserted) return inserted;
+
+    const conflicted = await db
+      .select()
+      .from(users)
+      .where(sql`lower(${users.email}) = ${email}`)
+      .get();
+    if (conflicted) return conflicted;
+
+    throw new Error("auth user insert conflict");
+  })();
 
   const { ctx } = getCloudflareContext();
   ctx.waitUntil(
