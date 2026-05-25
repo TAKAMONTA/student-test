@@ -3,6 +3,7 @@ import { z } from "zod";
 import { Resend } from "resend";
 import { sql } from "drizzle-orm";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { nanoid } from "nanoid";
 import { getDb } from "@/db/client";
 import { users } from "@/db/schema";
 import { createMagicToken } from "@/lib/magic-link";
@@ -44,18 +45,31 @@ export async function POST(req: NextRequest) {
     .from(users)
     .where(sql`lower(${users.email}) = ${email}`)
     .get();
-  if (existing) {
-    const { ctx } = getCloudflareContext();
-    ctx.waitUntil(
-      sendLoginEmail({
-        email: existing.email,
-        secret,
-        resendApiKey,
-        resendFromEmail,
-        appUrl,
-      }),
-    );
+
+  const loginUser = existing ?? {
+    id: nanoid(),
+    email,
+  };
+
+  if (!existing) {
+    await db.insert(users)
+      .values({
+        id: loginUser.id,
+        email: loginUser.email,
+      })
+      .execute();
   }
+
+  const { ctx } = getCloudflareContext();
+  ctx.waitUntil(
+    sendLoginEmail({
+      email: loginUser.email,
+      secret,
+      resendApiKey,
+      resendFromEmail,
+      appUrl,
+    }),
+  );
 
   return NextResponse.json({ ok: true });
 }
