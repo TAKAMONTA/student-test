@@ -4,12 +4,12 @@ import WebKit
 struct AppWebView: UIViewRepresentable {
     @ObservedObject var model: WebViewModel
     let config: AppConfig
-    let onBridgeMessage: (Any) -> Void
+    let onBridgeMessage: (IAPBridgeMessage) -> Void
 
     init(
         model: WebViewModel,
         config: AppConfig,
-        onBridgeMessage: @escaping (Any) -> Void = { _ in }
+        onBridgeMessage: @escaping (IAPBridgeMessage) -> Void = { _ in }
     ) {
         self.model = model
         self.config = config
@@ -44,16 +44,16 @@ struct AppWebView: UIViewRepresentable {
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         private let model: WebViewModel
-        private let onBridgeMessage: (Any) -> Void
+        private let onBridgeMessage: (IAPBridgeMessage) -> Void
 
-        init(model: WebViewModel, onBridgeMessage: @escaping (Any) -> Void) {
+        init(model: WebViewModel, onBridgeMessage: @escaping (IAPBridgeMessage) -> Void) {
             self.model = model
             self.onBridgeMessage = onBridgeMessage
         }
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-            guard message.name == "iap" else { return }
-            onBridgeMessage(message.body)
+            guard message.name == "iap", let bridgeMessage = IAPBridgeMessage(body: message.body) else { return }
+            onBridgeMessage(bridgeMessage)
         }
 
         func webView(
