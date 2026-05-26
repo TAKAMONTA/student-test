@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import EmailInput from "@/components/EmailInput";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -59,14 +60,12 @@ export default function LoginPage() {
               <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
                 メールアドレス
               </label>
-              <input
+              <EmailInput
                 id="email"
-                type="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900"
+                onChange={setEmail}
+                inputClassName="w-full px-4 py-3 pr-16 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900"
               />
             </div>
 

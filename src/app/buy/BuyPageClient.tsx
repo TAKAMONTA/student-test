@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import EmailInput from "@/components/EmailInput";
 import MarketingProductPreview from "@/components/MarketingProductPreview";
 import { isIosAppUserAgent } from "@/lib/ios-app";
 
@@ -315,15 +316,12 @@ export default function BuyPageClient({ initialIsIosApp }: { initialIsIosApp: bo
                         <label htmlFor="purchase-email" className="mb-2 block text-sm font-black text-slate-700">
                           ログインリンクを受け取るメールアドレス
                         </label>
-                        <input
+                        <EmailInput
                           id="purchase-email"
-                          type="email"
-                          autoComplete="email"
                           required
                           value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="your@email.com"
-                          className="w-full rounded-md border border-slate-300 px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                          onChange={setEmail}
+                          inputClassName="w-full rounded-md border border-slate-300 px-4 py-3 pr-16 text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                         />
                       </div>
 
