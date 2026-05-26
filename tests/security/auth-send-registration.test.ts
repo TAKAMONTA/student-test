@@ -28,4 +28,19 @@ describe("auth send registration behavior", () => {
     expect(text).not.toContain("user_not_found");
     expect(text).not.toContain("No user");
   });
+
+  it("gates direct local test login to localhost and allowed emails", () => {
+    const route = source("src/app/api/auth/send/route.ts");
+    const page = source("src/app/login/page.tsx");
+
+    expect(route).toContain("isLocalTestLoginRequest(req, email)");
+    expect(route).toContain('process.env["ENABLE_TEST_LOGIN"] !== "true"');
+    expect(route).toContain("TEST_LOGIN_ALLOWED_EMAILS");
+    expect(route).toContain('hostname === "localhost"');
+    expect(route).toContain('hostname === "127.0.0.1"');
+    expect(route).toContain("sessionCookieOptions(req.url)");
+    expect(route).toContain("directLogin: true");
+    expect(page).toContain("data.directLogin");
+    expect(page).toContain("window.location.href = data.redirectTo");
+  });
 });

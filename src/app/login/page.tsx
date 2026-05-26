@@ -19,9 +19,11 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
+      const data = await res.json() as { error?: string; directLogin?: boolean; redirectTo?: string };
       if (!res.ok) {
-        const data = await res.json() as { error?: string };
         setError(data.error ?? "エラーが発生しました");
+      } else if (data.directLogin && data.redirectTo) {
+        window.location.href = data.redirectTo;
       } else {
         setSent(true);
       }
