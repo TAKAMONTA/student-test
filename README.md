@@ -148,10 +148,12 @@ xcodebuild -project Chu1TestKit.xcodeproj -scheme 'Chu1TestKit Local StoreKit' -
 
 Local StoreKit testing:
 
-- Set `APPLE_APP_STORE_ENVIRONMENT=Xcode` for the local web server.
+- Copy `.dev.vars.example` to `.dev.vars` and set local-only secrets.
+- Keep `APPLE_APP_STORE_ENVIRONMENT=Xcode` for the local preview server.
 - `APPLE_IAP_ISSUER_ID`, `APPLE_IAP_KEY_ID`, and `APPLE_IAP_PRIVATE_KEY` may stay empty in Xcode mode.
-- Run `npm run dev`, then launch the `Chu1TestKit Local StoreKit` scheme in Xcode.
-- The local scheme points the WebView at `http://localhost:3000` and uses `ios/StoreKit/Chu1TestKit.storekit`.
+- Apply local D1 migrations and seed data with `npx wrangler d1 migrations apply chu1-testkit-db --local` and `npx wrangler d1 execute chu1-testkit-db --local --file=seeds/complete-content.sql`.
+- Run `npm run preview:local-storekit`, then launch the `Chu1TestKit Local StoreKit` scheme in Xcode.
+- The local scheme points the WebView at `http://localhost:8787` and uses `ios/StoreKit/Chu1TestKit.storekit`.
 
 App Store Connect setup:
 

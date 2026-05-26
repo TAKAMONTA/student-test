@@ -10,6 +10,7 @@
     "test:watch": "vitest",
     "content:check": "node scripts/validate-content-seed.mjs",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "preview:local-storekit": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv ./src/cloudflare-env.d.ts"
   },

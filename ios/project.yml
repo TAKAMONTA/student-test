@@ -51,7 +51,7 @@ schemes:
       config: Debug
       storeKitConfiguration: StoreKit/Chu1TestKit.storekit
       environmentVariables:
-        CHU1_APP_URL: http://localhost:3000
+        CHU1_APP_URL: http://localhost:8787
         CHU1_IAP_PRODUCT_ID: chu1_testkit_lifetime
     test:
       targets:

@@ -41,15 +41,22 @@ APPLE_APP_STORE_ENVIRONMENT=Xcode
 
 `APPLE_IAP_ISSUER_ID`, `APPLE_IAP_KEY_ID`, and `APPLE_IAP_PRIVATE_KEY` can stay empty in Xcode mode because the server accepts the local StoreKit JWS payload directly.
 
-2. Start the web app locally:
+2. Copy `.dev.vars.example` to `.dev.vars`, then apply local D1 schema and seed data:
 
 ```bash
-npm run dev
+npx wrangler d1 migrations apply chu1-testkit-db --local
+npx wrangler d1 execute chu1-testkit-db --local --file=seeds/complete-content.sql
 ```
 
-3. Open `ios/Chu1TestKit.xcodeproj` and run the `Chu1TestKit Local StoreKit` scheme on a simulator.
+3. Start the Cloudflare/OpenNext preview server:
 
-The local scheme uses `CHU1_APP_URL=http://localhost:3000`, `CHU1_IAP_PRODUCT_ID=chu1_testkit_lifetime`, and `ios/StoreKit/Chu1TestKit.storekit`. For a physical device, replace `CHU1_APP_URL` with a reachable Mac LAN URL or a tunneled HTTPS URL.
+```bash
+npm run preview:local-storekit
+```
+
+4. Open `ios/Chu1TestKit.xcodeproj` and run the `Chu1TestKit Local StoreKit` scheme on a simulator.
+
+The local scheme uses `CHU1_APP_URL=http://localhost:8787`, `CHU1_IAP_PRODUCT_ID=chu1_testkit_lifetime`, and `ios/StoreKit/Chu1TestKit.storekit`. For a physical device, replace `CHU1_APP_URL` with a reachable Mac LAN URL or a tunneled HTTPS URL.
 
 ## App Store Connect Setup
 

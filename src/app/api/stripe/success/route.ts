@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { CHECKOUT_SUCCESS_COOKIE, createCheckoutSuccessToken } from "@/lib/checkout-success";
+import { checkoutSuccessCookieOptions } from "@/lib/cookie-options";
 
 export async function GET(req: NextRequest) {
   const sessionId = req.nextUrl.searchParams.get("session_id");
@@ -24,12 +25,6 @@ export async function GET(req: NextRequest) {
   }
   const token = await createCheckoutSuccessToken({ sessionId: session.id, secret: jwtSecret });
   const res = NextResponse.redirect(new URL("/checkout/success?verified=1", req.url));
-  res.cookies.set(CHECKOUT_SUCCESS_COOKIE, token, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    maxAge: 60 * 10,
-    path: "/checkout/success",
-  });
+  res.cookies.set(CHECKOUT_SUCCESS_COOKIE, token, checkoutSuccessCookieOptions(req.url));
   return res;
 }

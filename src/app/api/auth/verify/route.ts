@@ -4,6 +4,7 @@ import { getDb } from "@/db/client";
 import { users } from "@/db/schema";
 import { verifyMagicToken } from "@/lib/magic-link";
 import { signSessionToken } from "@/lib/session";
+import { sessionCookieOptions } from "@/lib/cookie-options";
 
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get("token");
@@ -35,12 +36,6 @@ export async function GET(req: NextRequest) {
   const destination = isPurchased ? "/home" : "/buy";
 
   const res = NextResponse.redirect(new URL(destination, req.url));
-  res.cookies.set("session", sessionToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 30,
-    path: "/",
-  });
+  res.cookies.set("session", sessionToken, sessionCookieOptions(req.url));
   return res;
 }

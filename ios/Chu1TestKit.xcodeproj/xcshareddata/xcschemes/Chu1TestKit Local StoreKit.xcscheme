@@ -93,7 +93,7 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "CHU1_APP_URL"
-            value = "http://localhost:3000"
+            value = "http://localhost:8787"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable

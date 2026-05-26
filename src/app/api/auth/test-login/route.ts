@@ -4,6 +4,7 @@ import { nanoid } from "nanoid";
 import { z } from "zod";
 import { getDb } from "@/db/client";
 import { users } from "@/db/schema";
+import { sessionCookieOptions } from "@/lib/cookie-options";
 import { signSessionToken } from "@/lib/session";
 
 const bodySchema = z.object({
@@ -55,12 +56,6 @@ export async function POST(req: NextRequest) {
   const sessionToken = await signSessionToken({ userId: user.id, secret: jwtSecret });
   console.info("test login issued", { email: user.email });
   const res = NextResponse.json({ ok: true, email: user.email });
-  res.cookies.set("session", sessionToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 30,
-    path: "/",
-  });
+  res.cookies.set("session", sessionToken, sessionCookieOptions(req.url));
   return res;
 }

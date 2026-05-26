@@ -1,14 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { clearSessionCookieOptions } from "@/lib/cookie-options";
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   const res = NextResponse.json({ ok: true });
-  res.cookies.set("session", "", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    maxAge: 0,
-    path: "/",
-  });
+  res.cookies.set("session", "", clearSessionCookieOptions(req.url));
   res.headers.set("Clear-Site-Data", '"cache"');
   return res;
 }
