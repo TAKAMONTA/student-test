@@ -14,6 +14,8 @@ This release adds the native iOS shell for the App Store build: SwiftUI, WKWebVi
 - Server verification through `/api/apple/iap/verify` with WebView session cookies
 - Transaction update listener that verifies and finishes transactions after server confirmation
 - Privacy manifest at `ios/Chu1TestKit/PrivacyInfo.xcprivacy`
+- Local StoreKit configuration at `ios/StoreKit/Chu1TestKit.storekit`
+- Debug launch environment overrides via `CHU1_APP_URL` and `CHU1_IAP_PRODUCT_ID`
 
 ## Build And Test
 
@@ -22,7 +24,32 @@ cd ios
 xcodegen generate
 xcodebuild -project Chu1TestKit.xcodeproj -scheme Chu1TestKit -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
 xcodebuild -project Chu1TestKit.xcodeproj -scheme Chu1TestKit -destination 'platform=iOS Simulator,name=iPhone 17' CODE_SIGNING_ALLOWED=NO test
+xcodebuild -project Chu1TestKit.xcodeproj -scheme 'Chu1TestKit Local StoreKit' -destination 'platform=iOS Simulator,name=iPhone 17' CODE_SIGNING_ALLOWED=NO build
 ```
+
+## Local StoreKit Testing
+
+Use this before App Store Connect sandbox testing when you want to check the native purchase sheet and WebView bridge locally.
+
+1. Set the local web environment to Xcode StoreKit mode:
+
+```bash
+APPLE_BUNDLE_ID=jp.taka.chu1testkit
+APPLE_IAP_PRODUCT_ID=chu1_testkit_lifetime
+APPLE_APP_STORE_ENVIRONMENT=Xcode
+```
+
+`APPLE_IAP_ISSUER_ID`, `APPLE_IAP_KEY_ID`, and `APPLE_IAP_PRIVATE_KEY` can stay empty in Xcode mode because the server accepts the local StoreKit JWS payload directly.
+
+2. Start the web app locally:
+
+```bash
+npm run dev
+```
+
+3. Open `ios/Chu1TestKit.xcodeproj` and run the `Chu1TestKit Local StoreKit` scheme on a simulator.
+
+The local scheme uses `CHU1_APP_URL=http://localhost:3000`, `CHU1_IAP_PRODUCT_ID=chu1_testkit_lifetime`, and `ios/StoreKit/Chu1TestKit.storekit`. For a physical device, replace `CHU1_APP_URL` with a reachable Mac LAN URL or a tunneled HTTPS URL.
 
 ## App Store Connect Setup
 
@@ -34,6 +61,8 @@ xcodebuild -project Chu1TestKit.xcodeproj -scheme Chu1TestKit -destination 'plat
 - Sandbox tester: create at least one account for purchase and restore checks
 
 ## Manual StoreKit Sandbox Checks
+
+Use App Store Connect sandbox after the non-consumable product is created. Set `APPLE_APP_STORE_ENVIRONMENT=Sandbox` and provide App Store Server API credentials before running these checks.
 
 1. Log in through the iOS WebView email magic-link flow.
 2. Open the buy page and tap the native purchase action.

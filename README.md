@@ -143,7 +143,15 @@ cd ios
 xcodegen generate
 xcodebuild -project Chu1TestKit.xcodeproj -scheme Chu1TestKit -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
 xcodebuild -project Chu1TestKit.xcodeproj -scheme Chu1TestKit -destination 'platform=iOS Simulator,name=iPhone 17' CODE_SIGNING_ALLOWED=NO test
+xcodebuild -project Chu1TestKit.xcodeproj -scheme 'Chu1TestKit Local StoreKit' -destination 'platform=iOS Simulator,name=iPhone 17' CODE_SIGNING_ALLOWED=NO build
 ```
+
+Local StoreKit testing:
+
+- Set `APPLE_APP_STORE_ENVIRONMENT=Xcode` for the local web server.
+- `APPLE_IAP_ISSUER_ID`, `APPLE_IAP_KEY_ID`, and `APPLE_IAP_PRIVATE_KEY` may stay empty in Xcode mode.
+- Run `npm run dev`, then launch the `Chu1TestKit Local StoreKit` scheme in Xcode.
+- The local scheme points the WebView at `http://localhost:3000` and uses `ios/StoreKit/Chu1TestKit.storekit`.
 
 App Store Connect setup:
 

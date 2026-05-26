@@ -2,7 +2,7 @@ import SwiftUI
 
 @main
 struct Chu1TestKitApp: App {
-    @StateObject private var webViewModel = WebViewModel(config: .production)
+    @StateObject private var webViewModel = WebViewModel(config: .current())
 
     var body: some Scene {
         WindowGroup {

@@ -43,6 +43,7 @@
 		6C01A1E615B81A042728BB9F /* IAPBridgeMessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPBridgeMessageTests.swift; sourceTree = "<group>"; };
 		7B541534C29A58BECC445C49 /* IAPController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPController.swift; sourceTree = "<group>"; };
 		826F8F0D77E85425E6FE2C4F /* Chu1TestKitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chu1TestKitApp.swift; sourceTree = "<group>"; };
+		86957D9089B2E1A3AEA06289 /* Chu1TestKit.storekit */ = {isa = PBXFileReference; path = Chu1TestKit.storekit; sourceTree = "<group>"; };
 		89BBB09512193B006DE862EF /* AppleIAPVerifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIAPVerifier.swift; sourceTree = "<group>"; };
 		8E8CEBACD4DC56E93EF30B2E /* AppConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfigTests.swift; sourceTree = "<group>"; };
 		8EB85713E590AC16421EE6ED /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
@@ -61,6 +62,7 @@
 			children = (
 				9FAC99B965923CA638288603 /* Chu1TestKit */,
 				EA1EF2C4AE1A941A06C5DCD7 /* Chu1TestKitTests */,
+				F7CFE22EBF15ACF0C708F448 /* StoreKit */,
 				4BD93B0F6A6C06B0BE841779 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -103,6 +105,14 @@
 				F7A582F0D88722AFA34FAE70 /* WebViewModelTests.swift */,
 			);
 			path = Chu1TestKitTests;
+			sourceTree = "<group>";
+		};
+		F7CFE22EBF15ACF0C708F448 /* StoreKit */ = {
+			isa = PBXGroup;
+			children = (
+				86957D9089B2E1A3AEA06289 /* Chu1TestKit.storekit */,
+			);
+			path = StoreKit;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

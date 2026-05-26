@@ -1,9 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   appStoreServerBaseUrl,
   decodeAppleJwsPayload,
   extractTransactionIdFromSignedTransactionInfo,
   fetchAppleTransactionInfo,
+  readAppleIapConfig,
   validateAppleLifetimeTransaction,
 } from "@/lib/apple-iap";
 
@@ -25,6 +26,10 @@ const validPayload = {
 };
 
 describe("apple iap helpers", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("decodes a compact JWS payload without trusting it", () => {
     expect(decodeAppleJwsPayload(unsignedJws(validPayload))).toMatchObject(validPayload);
   });
@@ -135,6 +140,24 @@ describe("apple iap helpers", () => {
     );
     expect(fetchImpl.mock.calls[0]?.[1]?.headers).toMatchObject({
       Authorization: expect.stringMatching(/^Bearer /),
+    });
+  });
+
+  it("allows Xcode StoreKit testing without App Store Server API credentials", () => {
+    vi.stubEnv("APPLE_BUNDLE_ID", "jp.taka.chu1testkit");
+    vi.stubEnv("APPLE_IAP_PRODUCT_ID", "chu1_testkit_lifetime");
+    vi.stubEnv("APPLE_APP_STORE_ENVIRONMENT", "Xcode");
+    vi.stubEnv("APPLE_IAP_ISSUER_ID", "");
+    vi.stubEnv("APPLE_IAP_KEY_ID", "");
+    vi.stubEnv("APPLE_IAP_PRIVATE_KEY", "");
+
+    expect(readAppleIapConfig()).toEqual({
+      bundleId: "jp.taka.chu1testkit",
+      productId: "chu1_testkit_lifetime",
+      environment: "Xcode",
+      issuerId: "",
+      keyId: "",
+      privateKey: "",
     });
   });
 });

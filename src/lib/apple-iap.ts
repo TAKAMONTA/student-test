@@ -163,12 +163,23 @@ export function readAppleIapConfig(): AppStoreServerConfig {
   const keyId = process.env["APPLE_IAP_KEY_ID"];
   const privateKey = process.env["APPLE_IAP_PRIVATE_KEY"];
 
-  if (!bundleId || !productId || !environment || !issuerId || !keyId || !privateKey) {
+  if (!bundleId || !productId || !environment) {
     throw new Error("apple iap environment is incomplete");
   }
   if (environment !== "Production" && environment !== "Sandbox" && environment !== "Xcode") {
     throw new Error("apple iap environment is invalid");
   }
 
-  return { bundleId, productId, environment, issuerId, keyId, privateKey };
+  if (environment !== "Xcode" && (!issuerId || !keyId || !privateKey)) {
+    throw new Error("apple iap environment is incomplete");
+  }
+
+  return {
+    bundleId,
+    productId,
+    environment,
+    issuerId: issuerId ?? "",
+    keyId: keyId ?? "",
+    privateKey: privateKey ?? "",
+  };
 }
