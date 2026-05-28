@@ -83,4 +83,14 @@ extension WKHTTPCookieStore {
             }
         }
     }
+
+    func setCookies(_ cookies: [HTTPCookie]) async {
+        for cookie in cookies {
+            await withCheckedContinuation { continuation in
+                setCookie(cookie) {
+                    continuation.resume()
+                }
+            }
+        }
+    }
 }

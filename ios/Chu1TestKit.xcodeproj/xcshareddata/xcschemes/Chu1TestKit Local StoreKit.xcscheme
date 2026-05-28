@@ -101,6 +101,11 @@
             value = "chu1_testkit_lifetime"
             isEnabled = "YES">
          </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "CHU1_TEST_LOGIN_EMAIL"
+            value = "t.nakaima@gmail.com"
+            isEnabled = "YES">
+         </EnvironmentVariable>
       </EnvironmentVariables>
       <StoreKitConfigurationFileReference
          identifier = "../../StoreKit/Chu1TestKit.storekit">

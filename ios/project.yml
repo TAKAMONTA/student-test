@@ -53,6 +53,7 @@ schemes:
       environmentVariables:
         CHU1_APP_URL: http://localhost:8787
         CHU1_IAP_PRODUCT_ID: chu1_testkit_lifetime
+        CHU1_TEST_LOGIN_EMAIL: t.nakaima@gmail.com
     test:
       targets:
         - Chu1TestKitTests
