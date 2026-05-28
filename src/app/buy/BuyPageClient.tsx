@@ -321,7 +321,7 @@ export default function BuyPageClient({ initialIsIosApp }: { initialIsIosApp: bo
                           required
                           value={email}
                           onChange={setEmail}
-                          inputClassName="w-full rounded-md border border-slate-300 px-4 py-3 pr-16 text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                          inputClassName="w-full rounded-md border border-slate-300 px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                         />
                       </div>
 
