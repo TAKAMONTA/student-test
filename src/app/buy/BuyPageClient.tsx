@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import EmailInput from "@/components/EmailInput";
 import MarketingProductPreview from "@/components/MarketingProductPreview";
+import { capture } from "@/lib/analytics";
 import { isIosAppUserAgent } from "@/lib/ios-app";
 
 const INCLUDED = [
@@ -130,6 +131,9 @@ export default function BuyPageClient({ initialIsIosApp }: { initialIsIosApp: bo
     }
 
     setError("");
+    if (type === "purchase") {
+      capture("purchase_initiated", { channel: "ios" });
+    }
     window.webkit.messageHandlers.iap.postMessage({ type });
   }
 
@@ -139,6 +143,7 @@ export default function BuyPageClient({ initialIsIosApp }: { initialIsIosApp: bo
       setError("メールアドレスを入力してください");
       return;
     }
+    capture("purchase_initiated", { channel: "stripe" });
     setLoading(true);
     setError("");
     try {
