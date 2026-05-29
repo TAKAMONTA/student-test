@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import MarketingProductPreview from "@/components/MarketingProductPreview";
+import { capture } from "@/lib/analytics";
 
 const SUBJECTS = ["国語", "数学", "英語", "理科", "社会"];
 
@@ -60,6 +63,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/buy"
+              onClick={() => capture("lp_cta_clicked", { cta_id: "header", position: "header_nav" })}
               className="rounded-md bg-slate-950 px-4 py-2 text-white transition-colors hover:bg-slate-800"
             >
               980円で始める
@@ -100,6 +104,7 @@ export default function LandingPage() {
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/buy"
+                  onClick={() => capture("lp_cta_clicked", { cta_id: "hero", position: "above_fold" })}
                   className="rounded-md bg-cyan-300 px-7 py-4 text-center text-base font-black text-slate-950 transition-colors hover:bg-cyan-200"
                 >
                   購入ページへ
@@ -200,6 +205,7 @@ export default function LandingPage() {
             </p>
             <Link
               href="/buy"
+              onClick={() => capture("lp_cta_clicked", { cta_id: "pricing", position: "pricing_card" })}
               className="mt-6 block rounded-md bg-cyan-300 px-5 py-4 text-center font-black text-slate-950 transition-colors hover:bg-cyan-200"
             >
               980円で始める
