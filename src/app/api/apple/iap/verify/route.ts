@@ -14,6 +14,7 @@ import {
   type ApplePurchaseDb,
   type ApplePurchaseRecord,
 } from "@/lib/apple-purchase";
+import { captureServerEvent } from "@/lib/analytics-server";
 
 const bodySchema = z.object({
   signedTransactionInfo: z.string().min(20),
@@ -113,6 +114,25 @@ export async function POST(req: NextRequest) {
         },
       },
     });
+
+    // Only fire on fresh purchases, not restores or updates.
+    if (parsed.data.source === "purchase") {
+      await captureServerEvent({
+        host: process.env["POSTHOG_HOST"] ?? "",
+        apiKey: process.env["POSTHOG_PROJECT_API_KEY"] ?? "",
+        event: "purchase_completed",
+        distinctId: userId,
+        properties: {
+          channel: "ios",
+          source: parsed.data.source,
+          purchased_at: result.purchasedAt.toISOString(),
+          $set: {
+            purchased_at: result.purchasedAt.getTime(),
+            purchase_channel: "ios",
+          },
+        },
+      });
+    }
 
     return NextResponse.json({ ok: true, purchasedAt: result.purchasedAt.getTime() });
   } catch (err) {
