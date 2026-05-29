@@ -94,6 +94,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
+  const dbForCheck = getDb();
+  const userSnapshot = await dbForCheck
+    .select({ purchasedAt: users.purchasedAt })
+    .from(users)
+    .where(eq(users.id, userId))
+    .get();
+  const wasFirstVerification = !userSnapshot?.purchasedAt;
+
   try {
     const config = readAppleIapConfig();
     const result = await verifyApplePurchaseForUser({
@@ -116,7 +124,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Only fire on fresh purchases, not restores or updates.
-    if (parsed.data.source === "purchase") {
+    if (parsed.data.source === "purchase" && wasFirstVerification) {
       await captureServerEvent({
         host: process.env["POSTHOG_HOST"] ?? "",
         apiKey: process.env["POSTHOG_PROJECT_API_KEY"] ?? "",
