@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import EmailInput from "@/components/EmailInput";
+import { capture } from "@/lib/analytics";
+import { hashEmailForAnalytics } from "@/lib/email-hash";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -14,6 +16,8 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
+      const emailHash = await hashEmailForAnalytics(email);
+      capture("login_email_submitted", { email_hash: emailHash });
       const res = await fetch("/api/auth/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
