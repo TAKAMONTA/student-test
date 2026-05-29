@@ -16,6 +16,8 @@ import {
   shouldResumeStripePurchase,
   type StripePurchaseEmailSendStatus,
 } from "@/lib/stripe-purchase";
+import { captureServerEvent } from "@/lib/analytics-server";
+import { hashEmailForAnalytics } from "@/lib/email-hash";
 
 export async function POST(req: NextRequest) {
   const stripeSecretKey = process.env["STRIPE_SECRET_KEY"];
@@ -170,6 +172,29 @@ export async function POST(req: NextRequest) {
           .execute();
       }
 
+      // Emit purchase_completed only on the first successful delivery (skips duplicates).
+      if (user && !duplicateDelivery) {
+        const emailHash = await hashEmailForAnalytics(user.email);
+        await captureServerEvent({
+          host: process.env["POSTHOG_HOST"] ?? "",
+          apiKey: process.env["POSTHOG_PROJECT_API_KEY"] ?? "",
+          event: "purchase_completed",
+          distinctId: user.id,
+          properties: {
+            channel: "stripe",
+            email_hash: emailHash,
+            amount: session.amount_total,
+            currency: session.currency,
+            session_id: session.id,
+            $set: {
+              purchased_at: now,
+              purchase_channel: "stripe",
+              email_hash: emailHash,
+            },
+          },
+        });
+      }
+
       // Purchase success must not fail if email delivery fails.
       const emailSendStatus: StripePurchaseEmailSendStatus = existingPurchase?.emailSendStatus ?? "skipped";
       if (user) {
@@ -211,6 +236,18 @@ export async function POST(req: NextRequest) {
       if (duplicateDelivery) {
         return NextResponse.json({ received: true, duplicate: true, resumed: true });
       }
+    } else {
+      // Emit purchase_failed when checkout.session.completed arrives without a paid status.
+      await captureServerEvent({
+        host: process.env["POSTHOG_HOST"] ?? "",
+        apiKey: process.env["POSTHOG_PROJECT_API_KEY"] ?? "",
+        event: "purchase_failed",
+        distinctId: session.metadata?.["userId"] ?? `stripe_session:${session.id}`,
+        properties: {
+          channel: "stripe",
+          reason: `payment_status:${session.payment_status ?? "unknown"}`,
+        },
+      });
     }
   }
 
