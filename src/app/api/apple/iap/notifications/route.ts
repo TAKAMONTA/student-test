@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { captureServerEvent } from "@/lib/analytics-server";
 import { getDb } from "@/db/client";
 import { applePurchases } from "@/db/schema";
 import {
@@ -53,6 +54,29 @@ export async function POST(req: NextRequest) {
       })
       .where(eq(applePurchases.transactionId, notification.transactionId))
       .execute();
+
+    // On REFUND/REVOKE, emit purchase_failed so dashboards see the negative event.
+    const failureTypes = new Set(["REFUND", "REVOKE"]);
+    if (failureTypes.has(notification.notificationType)) {
+      const row = await db
+        .select({ userId: applePurchases.userId })
+        .from(applePurchases)
+        .where(eq(applePurchases.transactionId, notification.transactionId))
+        .get();
+      if (row?.userId) {
+        await captureServerEvent({
+          host: process.env["POSTHOG_HOST"] ?? "",
+          apiKey: process.env["POSTHOG_PROJECT_API_KEY"] ?? "",
+          event: "purchase_failed",
+          distinctId: row.userId,
+          properties: {
+            channel: "ios",
+            reason: `apple_notification:${notification.notificationType}`,
+            transaction_id: notification.transactionId,
+          },
+        });
+      }
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {
