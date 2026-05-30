@@ -38,21 +38,34 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900">4. 第三者提供</h2>
+            <h2 className="text-lg font-bold text-slate-900">4. 利用状況の集計（解析ツール）</h2>
+            <p>
+              サービス改善のため、PostHog Inc.（データ保管リージョン: 欧州）が提供する解析ツールを利用しています。送信される情報の例: ページ閲覧履歴、操作内容、購入の成否、リファラ情報、デバイス・ブラウザの種類。メールアドレスは送信前に当社サーバ内でハッシュ化（SHA-256）し、原文は送信しません。IPアドレスは末尾を匿名化する設定にしています。画面の録画は行いません。
+            </p>
+            <p className="mt-2">
+              ブラウザの「Do Not Track」設定が有効な場合、解析ツールの初期化を行いません。これにより、当該端末からの計測は停止されます。
+            </p>
+            <p className="mt-2">
+              iOSアプリは他社アプリ・サイトを横断したトラッキングを行わないため、App Tracking Transparency（ATT）の許諾要求は表示しません。
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-slate-900">5. 第三者提供</h2>
             <p>
               法令に基づく場合または利用者の同意がある場合を除き、取得した個人情報を第三者に提供しません。
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900">5. 安全管理</h2>
+            <h2 className="text-lg font-bold text-slate-900">6. 安全管理</h2>
             <p>
               取得した情報について、不正アクセス、漏えい、改ざん、紛失を防ぐため、合理的な安全管理措置を講じます。
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900">6. 開示・訂正・削除</h2>
+            <h2 className="text-lg font-bold text-slate-900">7. 開示・訂正・削除</h2>
             <p>
               利用者本人から個人情報の開示、訂正、削除等の請求があった場合、本人確認のうえ、法令に従って対応します。{SUPPORT_NOTE}
             </p>
