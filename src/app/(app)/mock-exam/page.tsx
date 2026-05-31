@@ -83,6 +83,7 @@ export default function MockExamPage() {
         setQuestions(data.questions);
         setIndex(0);
         setResults([]);
+        reviewPromptFiredRef.current = false;
         setPhase("running");
       }
     } catch {
