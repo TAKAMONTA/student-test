@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { SUPPORT_EMAIL } from "@/app/legal-data";
+import { capture } from "@/lib/analytics";
 
 type Profile = {
   testDate: string | null;
@@ -64,6 +66,29 @@ export default function ProfilePage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  const feedbackSubject = encodeURIComponent("【中1テストキット】ご意見・不具合報告");
+  const feedbackBody = encodeURIComponent(
+    [
+      "以下のテンプレートに沿ってお書きください。",
+      "",
+      "【ご意見または不具合の内容】",
+      "",
+      "",
+      "【不具合の場合、再現手順】",
+      "",
+      "",
+      "【ご利用環境】",
+      "・端末（iPhone / Android / PC など）:",
+      "・ブラウザ / アプリ:",
+      "",
+    ].join("\n"),
+  );
+  const feedbackMailto = `mailto:${SUPPORT_EMAIL}?subject=${feedbackSubject}&body=${feedbackBody}`;
+
+  function handleFeedbackClick() {
+    capture("feedback_initiated", { source: "profile" });
   }
 
   if (!profile) {
@@ -130,6 +155,20 @@ export default function ProfilePage() {
           <span>利用期限</span>
           <span>無期限</span>
         </div>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3 text-sm mt-5">
+        <h2 className="font-bold text-slate-800">サポート</h2>
+        <p className="text-xs text-slate-500 leading-5">
+          返信は {SUPPORT_EMAIL} から数日以内にお送りします。
+        </p>
+        <a
+          href={feedbackMailto}
+          onClick={handleFeedbackClick}
+          className="block w-full bg-indigo-50 text-indigo-700 font-medium py-3 rounded-xl text-center hover:bg-indigo-100 transition-colors"
+        >
+          ご意見・不具合報告をメールで送る
+        </a>
       </div>
 
       <div className="mt-8">
