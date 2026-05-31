@@ -31,6 +31,18 @@ describe("analytics instrumentation", () => {
     expect(text).toContain('channel: "ios"');
   });
 
+  it("buy identifies authenticated user via profile fetch", () => {
+    const text = source("src/app/buy/BuyPageClient.tsx");
+    expect(text).toContain("identifyUser");
+    expect(text).toContain("profile.id");
+  });
+
+  it("app layout mounts PostHogIdentify for authenticated users", () => {
+    const text = source("src/app/(app)/layout.tsx");
+    expect(text).toContain("PostHogIdentify");
+    expect(text).toContain("authResult.id");
+  });
+
   it("auth verify captures login_completed server-side", () => {
     const text = source("src/app/api/auth/verify/route.ts");
     expect(text).toContain("captureServerEvent");

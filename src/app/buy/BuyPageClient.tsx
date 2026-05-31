@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import EmailInput from "@/components/EmailInput";
 import MarketingProductPreview from "@/components/MarketingProductPreview";
-import { capture } from "@/lib/analytics";
+import { capture, identifyUser } from "@/lib/analytics";
 import { isIosAppUserAgent } from "@/lib/ios-app";
 
 const INCLUDED = [
@@ -59,6 +59,7 @@ const IOS_FAQS = [
 ];
 
 type Profile = {
+  id: string;
   email: string;
   purchasedAt: number | null;
 };
@@ -100,6 +101,7 @@ export default function BuyPageClient({ initialIsIosApp }: { initialIsIosApp: bo
         const profile = (await res.json()) as Profile;
         setIsAuthenticated(true);
         setEmail(profile.email);
+        identifyUser(profile.id);
         setIsPurchased(Boolean(profile.purchasedAt));
         setChecking(false);
       })
