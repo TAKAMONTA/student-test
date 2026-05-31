@@ -17,7 +17,7 @@ struct AppWebView: UIViewRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(model: model, onBridgeMessage: onBridgeMessage)
+        Coordinator(model: model, onBridgeMessage: onBridgeMessage, onReviewRequested: { StoreReviewController.request() })
     }
 
     func makeUIView(context: Context) -> WKWebView {
@@ -25,6 +25,7 @@ struct AppWebView: UIViewRepresentable {
         configuration.applicationNameForUserAgent = config.iosUserAgentToken
         configuration.websiteDataStore = .default()
         configuration.userContentController.add(context.coordinator, name: "iap")
+        configuration.userContentController.add(context.coordinator, name: "review")
 
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = context.coordinator
@@ -40,23 +41,39 @@ struct AppWebView: UIViewRepresentable {
     static func dismantleUIView(_ webView: WKWebView, coordinator: Coordinator) {
         webView.navigationDelegate = nil
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "iap")
+        webView.configuration.userContentController.removeScriptMessageHandler(forName: "review")
     }
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         private let model: WebViewModel
         private let onBridgeMessage: (IAPBridgeMessage, [HTTPCookie]) -> Void
+        private let onReviewRequested: () -> Void
 
-        init(model: WebViewModel, onBridgeMessage: @escaping (IAPBridgeMessage, [HTTPCookie]) -> Void) {
+        init(
+            model: WebViewModel,
+            onBridgeMessage: @escaping (IAPBridgeMessage, [HTTPCookie]) -> Void,
+            onReviewRequested: @escaping () -> Void = { StoreReviewController.request() }
+        ) {
             self.model = model
             self.onBridgeMessage = onBridgeMessage
+            self.onReviewRequested = onReviewRequested
         }
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-            guard message.name == "iap", let bridgeMessage = IAPBridgeMessage(body: message.body) else { return }
-            WKWebsiteDataStore.default().httpCookieStore.getAllCookies { cookies in
-                DispatchQueue.main.async {
-                    self.onBridgeMessage(bridgeMessage, cookies)
+            switch message.name {
+            case "iap":
+                guard let bridgeMessage = IAPBridgeMessage(body: message.body) else { return }
+                WKWebsiteDataStore.default().httpCookieStore.getAllCookies { cookies in
+                    DispatchQueue.main.async {
+                        self.onBridgeMessage(bridgeMessage, cookies)
+                    }
                 }
+            case "review":
+                DispatchQueue.main.async {
+                    self.onReviewRequested()
+                }
+            default:
+                break
             }
         }
 
