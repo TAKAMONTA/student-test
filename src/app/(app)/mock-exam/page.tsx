@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { capture } from "@/lib/analytics";
+import { requestStoreReview } from "@/lib/store-review";
 
 type ExamQuestion = {
   id: number;
@@ -34,6 +36,22 @@ export default function MockExamPage() {
   const [submitting, setSubmitting] = useState(false);
   const [lockMsg, setLockMsg] = useState("");
   const [error, setError] = useState("");
+
+  const reviewPromptFiredRef = useRef(false);
+
+  useEffect(() => {
+    if (phase !== "done") return;
+    if (reviewPromptFiredRef.current) return;
+    reviewPromptFiredRef.current = true;
+    const score = results.filter((r) => r.isCorrect).length;
+    capture("review_prompt_requested", {
+      trigger: "mock_exam_done",
+      scope,
+      score,
+      total: questions.length,
+    });
+    requestStoreReview();
+  }, [phase, results, scope, questions.length]);
 
   async function startExam() {
     setLoading(true);
