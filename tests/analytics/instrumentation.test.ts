@@ -43,6 +43,13 @@ describe("analytics instrumentation", () => {
     expect(text).toContain("authResult.id");
   });
 
+  it("profile page provides feedback channel via mailto with analytics", () => {
+    const text = source("src/app/(app)/profile/page.tsx");
+    expect(text).toContain("mailto:");
+    expect(text).toContain("SUPPORT_EMAIL");
+    expect(text).toContain('"feedback_initiated"');
+  });
+
   it("auth verify captures login_completed server-side", () => {
     const text = source("src/app/api/auth/verify/route.ts");
     expect(text).toContain("captureServerEvent");
