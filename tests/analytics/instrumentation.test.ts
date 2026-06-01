@@ -82,4 +82,11 @@ describe("analytics instrumentation", () => {
     expect(text).toContain("Do Not Track");
     expect(text).toContain("ハッシュ化");
   });
+
+  it("mock exam fires review prompt on completion with analytics", () => {
+    const text = source("src/app/(app)/mock-exam/page.tsx");
+    expect(text).toContain("requestStoreReview");
+    expect(text).toContain('"review_prompt_requested"');
+    expect(text).toContain('"mock_exam_done"');
+  });
 });
