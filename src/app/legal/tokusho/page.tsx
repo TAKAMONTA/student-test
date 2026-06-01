@@ -7,13 +7,14 @@ import {
   SUPPORT_NOTE,
   SUPPORT_PHONE,
 } from "../../legal-data";
+import { PRICE_DISPLAY_TAX } from "../../pricing-data";
 
 export const metadata = {
   title: `特定商取引法に基づく表記 | ${SERVICE_NAME}`,
 };
 
 const rows = [
-  ["販売価格", "980円（税込）"],
+  ["販売価格", PRICE_DISPLAY_TAX],
   ["商品代金以外の必要料金", "インターネット接続に必要な通信料等は利用者の負担となります。"],
   ["支払方法", "クレジットカード決済（Stripe）"],
   ["支払時期", "購入手続き完了時に決済されます。"],

@@ -6,6 +6,7 @@ import EmailInput from "@/components/EmailInput";
 import MarketingProductPreview from "@/components/MarketingProductPreview";
 import { capture, identifyUser } from "@/lib/analytics";
 import { isIosAppUserAgent } from "@/lib/ios-app";
+import { PRICE_JPY, PRICE_DISPLAY } from "../pricing-data";
 
 const INCLUDED = [
   "5教科25単元の解説",
@@ -31,7 +32,7 @@ const IOS_STEPS = [
 const WEB_FAQS = [
   {
     q: "月額料金はかかりますか？",
-    a: "かかりません。980円の買い切りで利用できます。",
+    a: `かかりません。${PRICE_DISPLAY}の買い切りで利用できます。`,
   },
   {
     q: "購入後に何が届きますか？",
@@ -203,7 +204,7 @@ export default function BuyPageClient({ initialIsIosApp }: { initialIsIosApp: bo
                 購入内容の確認
               </p>
               <h1 className="max-w-3xl text-4xl font-black leading-tight text-slate-950 sm:text-6xl">
-                {isIosApp ? "中1の定期テスト対策をApp Storeで始める" : "中1の定期テスト対策を980円で始める"}
+                {isIosApp ? "中1の定期テスト対策をApp Storeで始める" : `中1の定期テスト対策を${PRICE_DISPLAY}で始める`}
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
                 5教科の解説、ドリル、AI質問、予想模試をまとめて使えます。購入後はメールリンクでログインし、
@@ -233,7 +234,7 @@ export default function BuyPageClient({ initialIsIosApp }: { initialIsIosApp: bo
                   </div>
                 ) : (
                   <div className="mt-2 flex items-end gap-2">
-                    <span className="text-6xl font-black tabular-nums">980</span>
+                    <span className="text-6xl font-black tabular-nums">{PRICE_JPY}</span>
                     <span className="pb-2 text-xl font-black">円</span>
                   </div>
                 )}
@@ -339,7 +340,7 @@ export default function BuyPageClient({ initialIsIosApp }: { initialIsIosApp: bo
                         disabled={loading || checking}
                         className="mt-5 w-full rounded-md bg-cyan-500 px-5 py-4 text-lg font-black text-slate-950 shadow-lg shadow-cyan-100 transition-colors hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {checking ? "確認中..." : loading ? "決済画面を準備中..." : "980円で購入する"}
+                        {checking ? "確認中..." : loading ? "決済画面を準備中..." : `${PRICE_DISPLAY}で購入する`}
                       </button>
 
                       <p className="mt-4 text-center text-xs leading-5 text-slate-500">

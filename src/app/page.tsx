@@ -3,6 +3,7 @@
 import Link from "next/link";
 import MarketingProductPreview from "@/components/MarketingProductPreview";
 import { capture } from "@/lib/analytics";
+import { PRICE_JPY, PRICE_DISPLAY } from "./pricing-data";
 
 const SUBJECTS = ["国語", "数学", "英語", "理科", "社会"];
 
@@ -17,7 +18,7 @@ const OUTCOMES = [
   },
   {
     title: "保護者が見ても費用が明快",
-    body: "月額ではなく980円の買い切り。テスト直前だけ使いたい家庭でも始めやすい価格にしています。",
+    body: `月額ではなく${PRICE_DISPLAY}の買い切り。テスト直前だけ使いたい家庭でも始めやすい価格にしています。`,
   },
 ];
 
@@ -66,7 +67,7 @@ export default function LandingPage() {
               onClick={() => capture("lp_cta_clicked", { cta_id: "header", position: "header_nav" })}
               className="rounded-md bg-slate-950 px-4 py-2 text-white transition-colors hover:bg-slate-800"
             >
-              980円で始める
+              {PRICE_DISPLAY}で始める
             </Link>
           </nav>
         </div>
@@ -91,7 +92,7 @@ export default function LandingPage() {
             <div>
               <div className="grid gap-3 sm:grid-cols-3">
                 {[
-                  ["980円", "買い切り・税込"],
+                  [PRICE_DISPLAY, "買い切り・税込"],
                   ["25単元", "5教科まとめて"],
                   ["201問", "3択ドリル"],
                 ].map(([value, label]) => (
@@ -179,7 +180,7 @@ export default function LandingPage() {
           <div>
             <p className="text-sm font-black text-cyan-700">料金</p>
             <h2 className="mt-2 text-3xl font-black text-slate-950 sm:text-4xl">
-              980円でテスト前のひと通りを揃える
+              {PRICE_DISPLAY}でテスト前のひと通りを揃える
             </h2>
             <p className="mt-4 max-w-2xl leading-8 text-slate-600">
               月額課金ではありません。中1の定期テスト対策として、必要な解説・演習・質問・模試をまとめて使えます。
@@ -197,7 +198,7 @@ export default function LandingPage() {
           <aside className="rounded-lg border border-slate-300 bg-slate-950 p-6 text-white shadow-xl">
             <p className="text-sm font-black text-cyan-200">買い切り・税込</p>
             <div className="mt-3 flex items-end gap-2">
-              <span className="text-6xl font-black tabular-nums">980</span>
+              <span className="text-6xl font-black tabular-nums">{PRICE_JPY}</span>
               <span className="pb-2 text-xl font-black">円</span>
             </div>
             <p className="mt-4 text-sm leading-7 text-slate-300">
@@ -208,7 +209,7 @@ export default function LandingPage() {
               onClick={() => capture("lp_cta_clicked", { cta_id: "pricing", position: "pricing_card" })}
               className="mt-6 block rounded-md bg-cyan-300 px-5 py-4 text-center font-black text-slate-950 transition-colors hover:bg-cyan-200"
             >
-              980円で始める
+              {PRICE_DISPLAY}で始める
             </Link>
             <p className="mt-4 text-xs leading-6 text-slate-400">
               決済情報はStripeが処理します。このサービス側ではカード番号を保存しません。
