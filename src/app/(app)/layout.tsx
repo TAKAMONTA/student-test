@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { requireAuth, hasPurchase } from "@/lib/auth";
+import PostHogIdentify from "@/components/PostHogIdentify";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const authResult = await requireAuth();
@@ -10,6 +11,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex flex-col min-h-full">
+      <PostHogIdentify userId={authResult.id} />
       <nav className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="flex items-center justify-between px-4 h-14 max-w-3xl mx-auto w-full">
           <Link href="/home" className="font-bold text-indigo-600">

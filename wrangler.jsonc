@@ -28,6 +28,8 @@
     }
   ],
   "vars": {
-    "APP_URL": "https://chu1-testkit.t-nakaima.workers.dev"
+    "APP_URL": "https://chu1-testkit.t-nakaima.workers.dev",
+    "NEXT_PUBLIC_POSTHOG_HOST": "https://eu.i.posthog.com",
+    "POSTHOG_HOST": "https://eu.i.posthog.com"
   }
 }

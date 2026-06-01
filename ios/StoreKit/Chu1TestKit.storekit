@@ -1,0 +1,48 @@
+{
+  "appPolicies": {
+    "eula": "",
+    "policies": [
+      {
+        "locale": "en_US",
+        "policyText": "",
+        "policyURL": ""
+      }
+    ]
+  },
+  "identifier": "CEEEC5D8-6138-4974-BA19-37B3942C77C4",
+  "products": [
+    {
+      "displayPrice": "980",
+      "familyShareable": false,
+      "internalID": "CHU1LIFE001",
+      "localizations": [
+        {
+          "description": "中1の最初の中間テスト対策を5教科まとめて使えます",
+          "displayName": "中1テストキット買い切り",
+          "locale": "ja"
+        },
+        {
+          "description": "Lifetime access to the junior high first-year midterm study kit",
+          "displayName": "Chu1 Test Kit Lifetime",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "chu1_testkit_lifetime",
+      "referenceName": "Chu1 Test Kit Lifetime",
+      "type": "NonConsumable"
+    }
+  ],
+  "settings": {
+    "_failTransactionsEnabled": false,
+    "_locale": "ja",
+    "_storeKitErrors": [
+      {
+        "current": null,
+        "enabled": false,
+        "name": "Load Products"
+      }
+    ]
+  },
+  "type": "local",
+  "version": 4
+}

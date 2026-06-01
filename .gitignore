@@ -33,6 +33,7 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 !.env.local.example
+!.env.example
 
 # vercel
 .vercel
@@ -45,3 +46,10 @@ next-env.d.ts
 .dev.vars
 .wrangler
 .open-next
+
+# xcode
+ios/.build/
+ios/DerivedData/
+ios/*.xcworkspace/xcuserdata/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcodeproj/project.xcworkspace/xcuserdata/

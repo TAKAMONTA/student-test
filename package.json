@@ -10,6 +10,7 @@
     "test:watch": "vitest",
     "content:check": "node scripts/validate-content-seed.mjs",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "preview:local-storekit": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv ./src/cloudflare-env.d.ts"
   },
@@ -20,6 +21,7 @@
     "jose": "^6.2.3",
     "nanoid": "^5.1.11",
     "next": "16.2.6",
+    "posthog-js": "^1.376.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-markdown": "^10.1.0",

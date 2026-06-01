@@ -4,6 +4,8 @@ import { getDb } from "@/db/client";
 import { users } from "@/db/schema";
 import { verifyMagicToken } from "@/lib/magic-link";
 import { signSessionToken } from "@/lib/session";
+import { sessionCookieOptions } from "@/lib/cookie-options";
+import { captureServerEvent } from "@/lib/analytics-server";
 
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get("token");
@@ -31,16 +33,21 @@ export async function GET(req: NextRequest) {
 
   const sessionToken = await signSessionToken({ userId: user.id, secret });
 
+  // Emit server-side login_completed (fire-and-forget; never throws)
+  await captureServerEvent({
+    host: process.env["POSTHOG_HOST"] ?? "",
+    apiKey: process.env["POSTHOG_PROJECT_API_KEY"] ?? "",
+    event: "login_completed",
+    distinctId: user.id,
+    properties: {
+      has_purchased: user.purchasedAt !== null,
+    },
+  });
+
   const isPurchased = user.purchasedAt !== null;
   const destination = isPurchased ? "/home" : "/buy";
 
   const res = NextResponse.redirect(new URL(destination, req.url));
-  res.cookies.set("session", sessionToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 30,
-    path: "/",
-  });
+  res.cookies.set("session", sessionToken, sessionCookieOptions(req.url));
   return res;
 }

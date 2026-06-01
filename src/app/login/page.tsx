@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import EmailInput from "@/components/EmailInput";
+import { capture } from "@/lib/analytics";
+import { hashEmailForAnalytics } from "@/lib/email-hash";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -13,14 +16,18 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
+      const emailHash = await hashEmailForAnalytics(email);
+      capture("login_email_submitted", { email_hash: emailHash });
       const res = await fetch("/api/auth/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
+      const data = await res.json() as { error?: string; directLogin?: boolean; redirectTo?: string };
       if (!res.ok) {
-        const data = await res.json() as { error?: string };
         setError(data.error ?? "エラーが発生しました");
+      } else if (data.directLogin && data.redirectTo) {
+        window.location.href = data.redirectTo;
       } else {
         setSent(true);
       }
@@ -59,14 +66,12 @@ export default function LoginPage() {
               <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
                 メールアドレス
               </label>
-              <input
+              <EmailInput
                 id="email"
-                type="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900"
+                onChange={setEmail}
+                inputClassName="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900"
               />
             </div>
 

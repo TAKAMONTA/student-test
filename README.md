@@ -131,6 +131,38 @@ Smoke checks:
 - Replaying the same Stripe `checkout.session.completed` event does not send another purchase email.
 - AI question number 31 returns `429`.
 
+## iOS App Store Preparation
+
+iOS IAP readiness is tracked in [docs/release/2026-05-24-ios-iap-readiness.md](/Users/taka/中学一年生中間テスト対策/docs/release/2026-05-24-ios-iap-readiness.md).
+The native shell release notes are in [docs/release/2026-05-25-ios-native-shell.md](/Users/taka/中学一年生中間テスト対策/docs/release/2026-05-25-ios-native-shell.md).
+
+Native build/test:
+
+```bash
+cd ios
+xcodegen generate
+xcodebuild -project Chu1TestKit.xcodeproj -scheme Chu1TestKit -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
+xcodebuild -project Chu1TestKit.xcodeproj -scheme Chu1TestKit -destination 'platform=iOS Simulator,name=iPhone 17' CODE_SIGNING_ALLOWED=NO test
+xcodebuild -project Chu1TestKit.xcodeproj -scheme 'Chu1TestKit Local StoreKit' -destination 'platform=iOS Simulator,name=iPhone 17' CODE_SIGNING_ALLOWED=NO build
+```
+
+Local StoreKit testing:
+
+- Copy `.dev.vars.example` to `.dev.vars` and set local-only secrets.
+- Keep `APPLE_APP_STORE_ENVIRONMENT=Xcode` for the local preview server.
+- `APPLE_IAP_ISSUER_ID`, `APPLE_IAP_KEY_ID`, and `APPLE_IAP_PRIVATE_KEY` may stay empty in Xcode mode.
+- Apply local D1 migrations and seed data with `npx wrangler d1 migrations apply chu1-testkit-db --local` and `npx wrangler d1 execute chu1-testkit-db --local --file=seeds/complete-content.sql`.
+- Run `npm run preview:local-storekit`, then launch the `Chu1TestKit Local StoreKit` scheme in Xcode.
+- The local scheme points the WebView at `http://localhost:8787` and uses `ios/StoreKit/Chu1TestKit.storekit`.
+
+App Store Connect setup:
+
+- Bundle ID: `jp.taka.chu1testkit`
+- Associated Domains: `applinks:chu1-testkit.t-nakaima.workers.dev`
+- Non-consumable IAP product ID: `chu1_testkit_lifetime`
+- App Store Server Notifications V2: `/api/apple/iap/notifications`
+- Sandbox tester for purchase and restore checks
+
 ## Deploy
 
 ```bash

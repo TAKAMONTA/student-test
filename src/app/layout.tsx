@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import PostHogProvider from "@/components/PostHogProvider";
 import SwRegister from "@/components/SwRegister";
 import "./globals.css";
 
@@ -18,7 +19,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja" className="h-full">
       <body className="h-full bg-slate-50 text-slate-900 antialiased">
-        {children}
+        <PostHogProvider>
+          {children}
+        </PostHogProvider>
         <SwRegister />
       </body>
     </html>

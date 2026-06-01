@@ -1,0 +1,28 @@
+# Copy to .dev.vars for Cloudflare/OpenNext local preview.
+
+# Auth
+JWT_SECRET=replace-with-local-dev-secret
+ENABLE_TEST_LOGIN=true
+TEST_LOGIN_SECRET=replace-with-local-test-login-secret
+TEST_LOGIN_ALLOWED_EMAILS=ios-storekit@takaapps.com
+
+# App
+APP_URL=http://localhost:8787
+
+# Apple / local StoreKit
+APPLE_TEAM_ID=
+APPLE_BUNDLE_ID=jp.taka.chu1testkit
+APPLE_IAP_PRODUCT_ID=chu1_testkit_lifetime
+APPLE_APP_STORE_ENVIRONMENT=Xcode
+APPLE_IAP_ISSUER_ID=
+APPLE_IAP_KEY_ID=
+APPLE_IAP_PRIVATE_KEY=
+
+# Optional for non-IAP local flows
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PRICE_ID=
+STRIPE_PUBLIC_KEY=
+ANTHROPIC_API_KEY=

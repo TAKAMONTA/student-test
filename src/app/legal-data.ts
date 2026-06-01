@@ -1,4 +1,4 @@
-export const LEGAL_UPDATED_AT = "2026年5月15日";
+export const LEGAL_UPDATED_AT = "2026年5月30日";
 
 export const SERVICE_NAME = "中1テストキット";
 
