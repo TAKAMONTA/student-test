@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
+import { choiceState, classForChoiceState } from "./choice-state";
 
 type Question = {
   id: number;
@@ -19,6 +20,8 @@ type AttemptResult = {
   consecutiveCorrect: number;
 };
 
+const STREAK_MILESTONES = [3, 5, 10];
+
 export default function DrillPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const topicId = parseInt(id, 10);
@@ -31,6 +34,7 @@ export default function DrillPage({ params }: { params: Promise<{ id: string }> 
   const [submitting, setSubmitting] = useState(false);
   const [sessionCorrect, setSessionCorrect] = useState(0);
   const [sessionTotal, setSessionTotal] = useState(0);
+  const [streak, setStreak] = useState(0);
 
   useEffect(() => {
     fetch(`/api/topics/${topicId}/questions`)
@@ -57,7 +61,12 @@ export default function DrillPage({ params }: { params: Promise<{ id: string }> 
       const data = (await res.json()) as AttemptResult;
       setResult(data);
       setSessionTotal((t) => t + 1);
-      if (data.isCorrect) setSessionCorrect((c) => c + 1);
+      if (data.isCorrect) {
+        setSessionCorrect((c) => c + 1);
+        setStreak(data.consecutiveCorrect);
+      } else {
+        setStreak(0);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -82,15 +91,31 @@ export default function DrillPage({ params }: { params: Promise<{ id: string }> 
     );
   }
 
+  const answered = result !== null;
+  const hasChoices = !!question.choices && question.choices.length > 0;
+  const progress = Math.round(((index + 1) / questions.length) * 100);
+  const isMilestone =
+    answered && result.isCorrect && STREAK_MILESTONES.includes(result.consecutiveCorrect);
+
   return (
     <div>
+      <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+        <div
+          className="h-full rounded-full bg-indigo-500 transition-all duration-300"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
       <div className="flex items-center justify-between mb-6">
         <Link href={`/topic/${topicId}`} className="text-sm text-indigo-600 hover:underline">
           ← 単元に戻る
         </Link>
-        {sessionTotal > 0 && (
-          <span className="text-sm text-slate-500">正解率: {sessionCorrect}/{sessionTotal}</span>
-        )}
+        <div className="flex items-center gap-3 text-sm">
+          {streak > 0 && <span className="font-bold text-orange-600">🔥 {streak}</span>}
+          {sessionTotal > 0 && (
+            <span className="text-slate-500">正解率: {sessionCorrect}/{sessionTotal}</span>
+          )}
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-4">
@@ -98,26 +123,47 @@ export default function DrillPage({ params }: { params: Promise<{ id: string }> 
         <p className="text-slate-900 font-medium leading-relaxed">{question.text}</p>
       </div>
 
-      {!result ? (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {question.choices && question.choices.length > 0 ? (
-            <div className="grid gap-2">
-              {question.choices.map((choice) => (
+      {hasChoices ? (
+        <div className="space-y-4">
+          <div className="grid gap-2">
+            {question.choices!.map((choice) => {
+              const state = choiceState(choice, userAnswer, result);
+              const pop = answered && state === "correct" && result.isCorrect;
+              return (
                 <button
                   key={choice}
                   type="button"
+                  disabled={answered || submitting}
                   onClick={() => setUserAnswer(choice)}
-                  className={`w-full text-left px-5 py-3 rounded-xl border transition-colors ${
-                    userAnswer === choice
-                      ? "border-indigo-500 bg-indigo-50 text-indigo-900"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-indigo-200"
-                  }`}
+                  className={`flex w-full items-center justify-between gap-2 rounded-xl border px-5 py-3 text-left transition-colors disabled:cursor-default ${classForChoiceState(
+                    state,
+                  )} ${!answered ? "hover:border-indigo-200" : ""} ${pop ? "animate-drill-pop" : ""}`}
                 >
-                  {choice}
+                  <span>{choice}</span>
+                  {answered && state === "correct" && (
+                    <span className="font-bold text-green-600">✓</span>
+                  )}
+                  {answered && state === "incorrect" && (
+                    <span className="font-bold text-red-600">✗</span>
+                  )}
                 </button>
-              ))}
-            </div>
-          ) : (
+              );
+            })}
+          </div>
+          {!answered && (
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!userAnswer || submitting}
+              className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+            >
+              {submitting ? "採点中…" : "答える"}
+            </button>
+          )}
+        </div>
+      ) : (
+        !answered && (
+          <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="text"
               value={userAnswer}
@@ -125,23 +171,36 @@ export default function DrillPage({ params }: { params: Promise<{ id: string }> 
               placeholder="答えを入力"
               className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
+            <button
+              type="submit"
+              disabled={!userAnswer || submitting}
+              className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+            >
+              {submitting ? "採点中…" : "答える"}
+            </button>
+          </form>
+        )
+      )}
+
+      {answered && (
+        <div className="mt-4 space-y-4 animate-drill-reveal">
+          {isMilestone && (
+            <div className="rounded-2xl border border-orange-200 bg-orange-50 p-4 text-center animate-drill-pop">
+              <p className="font-bold text-orange-700">🔥 {result.consecutiveCorrect}連続正解！</p>
+            </div>
           )}
-          <button
-            type="submit"
-            disabled={!userAnswer || submitting}
-            className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+          <div
+            className={`rounded-2xl p-5 border ${
+              result.isCorrect ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"
+            }`}
           >
-            {submitting ? "採点中…" : "答える"}
-          </button>
-        </form>
-      ) : (
-        <div className="space-y-4">
-          <div className={`rounded-2xl p-5 border ${result.isCorrect ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}>
             <p className={`font-bold text-lg mb-1 ${result.isCorrect ? "text-green-700" : "text-red-700"}`}>
               {result.isCorrect ? "✓ 正解！" : "✗ 不正解"}
             </p>
             {!result.isCorrect && (
-              <p className="text-slate-700 text-sm mb-2">正解: <span className="font-semibold">{result.answer}</span></p>
+              <p className="text-slate-700 text-sm mb-2">
+                正解: <span className="font-semibold">{result.answer}</span>
+              </p>
             )}
             {result.explanation && (
               <p className="text-slate-600 text-sm leading-relaxed">{result.explanation}</p>
