@@ -22,3 +22,21 @@ describe("test-login endpoint hardening", () => {
     expect(text).toContain("testlogin_ip:");
   });
 });
+
+describe("login page review form", () => {
+  const page = () => source("src/app/login/page.tsx");
+
+  it("renders the demo/review login form posting to test-login", () => {
+    const text = page();
+    expect(text).toContain("審査・デモ用ログイン");
+    expect(text).toContain("/api/auth/test-login");
+    expect(text).toContain("reviewCode");
+  });
+
+  it("does not disturb the magic-link form", () => {
+    const text = page();
+    expect(text).toContain("<EmailInput");
+    expect(text).toContain("/api/auth/send");
+    expect(text).not.toContain("pr-16");
+  });
+});
