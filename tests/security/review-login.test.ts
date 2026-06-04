@@ -39,4 +39,9 @@ describe("login page review form", () => {
     expect(text).toContain("/api/auth/send");
     expect(text).not.toContain("pr-16");
   });
+
+  it("masks the review code input to avoid iOS autocorrect mangling", () => {
+    const text = page();
+    expect(text).toContain('type="password"');
+  });
 });

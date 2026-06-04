@@ -128,7 +128,7 @@ export default function LoginPage() {
               className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900"
             />
             <input
-              type="text"
+              type="password"
               value={reviewCode}
               onChange={(e) => setReviewCode(e.target.value)}
               placeholder="審査コード"
