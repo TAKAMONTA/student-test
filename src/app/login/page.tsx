@@ -10,6 +10,10 @@ export default function LoginPage() {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [reviewEmail, setReviewEmail] = useState("");
+  const [reviewCode, setReviewCode] = useState("");
+  const [reviewError, setReviewError] = useState("");
+  const [reviewLoading, setReviewLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -35,6 +39,28 @@ export default function LoginPage() {
       setError("通信エラーが発生しました");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleReviewSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setReviewLoading(true);
+    setReviewError("");
+    try {
+      const res = await fetch("/api/auth/test-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: reviewEmail, secret: reviewCode }),
+      });
+      if (res.ok) {
+        window.location.href = "/home";
+      } else {
+        setReviewError("ログインできませんでした");
+      }
+    } catch {
+      setReviewError("通信エラーが発生しました");
+    } finally {
+      setReviewLoading(false);
     }
   }
 
@@ -86,6 +112,40 @@ export default function LoginPage() {
             </button>
           </form>
         )}
+
+        <details className="mt-8 rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <summary className="cursor-pointer text-sm font-medium text-slate-600">
+            審査・デモ用ログイン
+          </summary>
+          <form onSubmit={handleReviewSubmit} className="mt-4 space-y-3">
+            <input
+              type="email"
+              value={reviewEmail}
+              onChange={(e) => setReviewEmail(e.target.value)}
+              placeholder="デモ用メールアドレス"
+              autoCapitalize="none"
+              autoCorrect="off"
+              className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900"
+            />
+            <input
+              type="password"
+              value={reviewCode}
+              onChange={(e) => setReviewCode(e.target.value)}
+              placeholder="審査コード"
+              autoCapitalize="none"
+              autoCorrect="off"
+              className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900"
+            />
+            {reviewError && <p className="text-sm text-red-600">{reviewError}</p>}
+            <button
+              type="submit"
+              disabled={reviewLoading || !reviewEmail || !reviewCode}
+              className="w-full bg-slate-700 text-white font-bold py-3 rounded-xl hover:bg-slate-800 disabled:opacity-60 transition-colors"
+            >
+              {reviewLoading ? "ログイン中…" : "ログイン"}
+            </button>
+          </form>
+        </details>
       </div>
     </div>
   );

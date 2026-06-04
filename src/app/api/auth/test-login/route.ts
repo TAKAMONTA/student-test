@@ -5,6 +5,7 @@ import { z } from "zod";
 import { getDb } from "@/db/client";
 import { users } from "@/db/schema";
 import { sessionCookieOptions } from "@/lib/cookie-options";
+import { getClientIp, reserveRateLimits } from "@/lib/rate-limit";
 import { signSessionToken } from "@/lib/session";
 
 const bodySchema = z.object({
@@ -21,6 +22,16 @@ export async function POST(req: NextRequest) {
   const jwtSecret = process.env["JWT_SECRET"];
   if (!testSecret || !jwtSecret) {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+
+  const ip = getClientIp(req.headers);
+  const rateLimit = await reserveRateLimits(
+    getDb(),
+    [{ key: `testlogin_ip:${ip}`, limit: 10 }],
+    60 * 60,
+  );
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 
   const parsed = bodySchema.safeParse(await req.json().catch(() => ({})));
