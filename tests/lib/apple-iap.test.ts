@@ -109,16 +109,18 @@ describe("apple iap helpers", () => {
     ).toThrow("apple transaction type mismatch");
   });
 
-  it("fetches official transaction info from the sandbox API", async () => {
+  it("queries Production first and falls back to Sandbox on 404", async () => {
     const serverJws = unsignedJws(validPayload);
-    const fetchImpl = vi.fn<typeof fetch>(
-      async (_input, _init) =>
-        new Response(JSON.stringify({ signedTransactionInfo: serverJws }), { status: 200 }),
-    );
+    const fetchImpl = vi.fn<typeof fetch>(async (input) => {
+      const url = String(input);
+      if (url.startsWith("https://api.storekit.apple.com/")) {
+        return new Response("", { status: 404 });
+      }
+      return new Response(JSON.stringify({ signedTransactionInfo: serverJws }), { status: 200 });
+    });
 
     const result = await fetchAppleTransactionInfo({
       signedTransactionInfo: unsignedJws(validPayload),
-      environment: "Sandbox",
       issuerId: "issuer-id",
       keyId: "key-id",
       bundleId: "jp.taka.chu1testkit",
@@ -135,7 +137,11 @@ describe("apple iap helpers", () => {
 
     expect(result.signedTransactionInfo).toBe(serverJws);
     expect(result.payload).toMatchObject(validPayload);
-    expect(fetchImpl.mock.calls[0]?.[0]).toBe(
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    expect(String(fetchImpl.mock.calls[0]?.[0])).toBe(
+      "https://api.storekit.apple.com/inApps/v1/transactions/2000000123456789",
+    );
+    expect(String(fetchImpl.mock.calls[1]?.[0])).toBe(
       "https://api.storekit-sandbox.apple.com/inApps/v1/transactions/2000000123456789",
     );
     expect(fetchImpl.mock.calls[0]?.[1]?.headers).toMatchObject({

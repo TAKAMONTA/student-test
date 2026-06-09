@@ -127,12 +127,15 @@ describe("apple notifications", () => {
       }),
     ).toThrow("apple notification product mismatch");
 
-    expect(() =>
+    // Production builds receive Sandbox notifications during App Review, so
+    // env mismatch is intentionally NOT a rejection — bundle/product match is
+    // the safety boundary, and the transaction JWS is already signed by Apple.
+    expect(
       validateAppleNotificationForApp(normalized, {
         bundleId: "jp.taka.chu1testkit",
         productId: "chu1_testkit_lifetime",
         environment: "Production",
       }),
-    ).toThrow("apple notification environment mismatch");
+    ).toBe(normalized);
   });
 });

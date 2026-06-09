@@ -34,7 +34,7 @@ export type NormalizedAppleNotification = {
 export type AppleNotificationConfig = {
   bundleId: string;
   productId: string;
-  environment: AppleIapEnvironment;
+  environment?: AppleIapEnvironment;
 };
 
 function normalizeEnvironment(environment: unknown): AppleIapEnvironment {
@@ -105,9 +105,9 @@ export function validateAppleNotificationForApp(
   if (notification.productId !== config.productId) {
     throw new Error("apple notification product mismatch");
   }
-  if (notification.environment !== config.environment) {
-    throw new Error("apple notification environment mismatch");
-  }
+  // Production builds receive Sandbox notifications during App Review, so trust
+  // the env stamped on the (already signed) transaction rather than a static
+  // server config. bundle/product match is enough for safety.
   return notification;
 }
 
@@ -116,13 +116,13 @@ export function readAppleNotificationConfig(): AppleNotificationConfig {
   const productId = process.env["APPLE_IAP_PRODUCT_ID"];
   const environment = process.env["APPLE_APP_STORE_ENVIRONMENT"];
 
-  if (!bundleId || !productId || !environment) {
+  if (!bundleId || !productId) {
     throw new Error("apple notification environment is incomplete");
   }
 
   return {
     bundleId,
     productId,
-    environment: normalizeEnvironment(environment),
+    ...(environment ? { environment: normalizeEnvironment(environment) } : {}),
   };
 }

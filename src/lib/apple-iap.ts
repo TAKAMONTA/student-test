@@ -30,7 +30,7 @@ export type ValidAppleTransaction = {
 export type AppleIapConfig = {
   bundleId: string;
   productId: string;
-  environment: AppleIapEnvironment;
+  environment?: AppleIapEnvironment;
 };
 
 export type AppStoreServerConfig = AppleIapConfig & {
@@ -69,6 +69,13 @@ export function appStoreServerBaseUrl(environment: AppleIapEnvironment): string 
   return "xcode-local";
 }
 
+export function normalizeAppleEnvironment(environment: unknown): AppleIapEnvironment {
+  if (environment === "Production" || environment === "Sandbox" || environment === "Xcode") {
+    return environment;
+  }
+  throw new Error("apple transaction environment invalid");
+}
+
 export function validateAppleLifetimeTransaction(
   payload: AppleTransactionPayload,
   config: AppleIapConfig,
@@ -79,9 +86,7 @@ export function validateAppleLifetimeTransaction(
   if (payload.productId !== config.productId) {
     throw new Error("apple transaction product mismatch");
   }
-  if (payload.environment !== config.environment) {
-    throw new Error("apple transaction environment mismatch");
-  }
+  const environment = normalizeAppleEnvironment(payload.environment);
   if (payload.type !== "Non-Consumable") {
     throw new Error("apple transaction type mismatch");
   }
@@ -100,7 +105,7 @@ export function validateAppleLifetimeTransaction(
     originalTransactionId: payload.originalTransactionId ?? null,
     webOrderLineItemId: payload.webOrderLineItemId ?? null,
     productId: payload.productId,
-    environment: config.environment,
+    environment,
     purchaseDate: new Date(payload.purchaseDate),
     revocationDate: null,
     revocationReason: payload.revocationReason ?? null,
@@ -133,12 +138,19 @@ export async function fetchAppleTransactionInfo(
   const transactionId = extractTransactionIdFromSignedTransactionInfo(opts.signedTransactionInfo);
   const token = await createAppStoreServerJwt(opts);
   const fetchImpl = opts.fetchImpl ?? fetch;
-  const res = await fetchImpl(
-    `${appStoreServerBaseUrl(opts.environment)}/inApps/v1/transactions/${encodeURIComponent(transactionId)}`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    },
-  );
+  const lookup = (environment: AppleIapEnvironment) =>
+    fetchImpl(
+      `${appStoreServerBaseUrl(environment)}/inApps/v1/transactions/${encodeURIComponent(transactionId)}`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+
+  // App Review purchases run in Sandbox even against the production build, so
+  // try Production first and fall back to Sandbox on 404 (Apple's recommended
+  // pattern). A single build serves both.
+  let res = await lookup("Production");
+  if (res.status === 404) {
+    res = await lookup("Sandbox");
+  }
 
   if (!res.ok) {
     throw new Error(`apple transaction lookup failed: ${res.status}`);
@@ -163,21 +175,22 @@ export function readAppleIapConfig(): AppStoreServerConfig {
   const keyId = process.env["APPLE_IAP_KEY_ID"];
   const privateKey = process.env["APPLE_IAP_PRIVATE_KEY"];
 
-  if (!bundleId || !productId || !environment) {
+  if (!bundleId || !productId) {
     throw new Error("apple iap environment is incomplete");
   }
-  if (environment !== "Production" && environment !== "Sandbox" && environment !== "Xcode") {
+  if (environment && environment !== "Production" && environment !== "Sandbox" && environment !== "Xcode") {
     throw new Error("apple iap environment is invalid");
   }
 
-  if (environment !== "Xcode" && (!issuerId || !keyId || !privateKey)) {
+  const isXcode = environment === "Xcode";
+  if (!isXcode && (!issuerId || !keyId || !privateKey)) {
     throw new Error("apple iap environment is incomplete");
   }
 
   return {
     bundleId,
     productId,
-    environment,
+    ...(environment ? { environment: environment as AppleIapEnvironment } : {}),
     issuerId: issuerId ?? "",
     keyId: keyId ?? "",
     privateKey: privateKey ?? "",
