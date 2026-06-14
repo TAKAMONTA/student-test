@@ -46,14 +46,14 @@
 		6C01A1E615B81A042728BB9F /* IAPBridgeMessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPBridgeMessageTests.swift; sourceTree = "<group>"; };
 		7B541534C29A58BECC445C49 /* IAPController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPController.swift; sourceTree = "<group>"; };
 		826F8F0D77E85425E6FE2C4F /* Chu1TestKitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chu1TestKitApp.swift; sourceTree = "<group>"; };
-		86957D9089B2E1A3AEA06289 /* Chu1TestKit.storekit */ = {isa = PBXFileReference; path = Chu1TestKit.storekit; sourceTree = "<group>"; };
+		86957D9089B2E1A3AEA06289 /* Chu1TestKit.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Chu1TestKit.storekit; sourceTree = "<group>"; };
 		89BBB09512193B006DE862EF /* AppleIAPVerifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIAPVerifier.swift; sourceTree = "<group>"; };
 		8E8CEBACD4DC56E93EF30B2E /* AppConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfigTests.swift; sourceTree = "<group>"; };
 		8EB85713E590AC16421EE6ED /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
 		A429F78998EAEFD5635862D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B81BA5ED4500E21763FF160F /* AppleIAPVerifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIAPVerifierTests.swift; sourceTree = "<group>"; };
-		BCFC1F1CE0D98670213E9C9D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		BEBD840F071EDBDC62C06C3E /* Chu1TestKit.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Chu1TestKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BCFC1F1CE0D98670213E9C9D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		BEBD840F071EDBDC62C06C3E /* Chu1TestKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chu1TestKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C14FF3E2EC6884A07FE78505 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CFC92D45B100FA449F7360FF /* StoreReviewBridgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreReviewBridgeTests.swift; sourceTree = "<group>"; };
 		EADACAE85A8135C0C8B90D43 /* AppWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppWebView.swift; sourceTree = "<group>"; };
@@ -168,8 +168,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 1BB47BA3E2536F84374CA754 /* Build configuration list for PBXProject "Chu1TestKit" */;
 			developmentRegion = en;
@@ -267,6 +265,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Chu1TestKit/Chu1TestKit.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = J3U2LZ2886;
 				INFOPLIST_FILE = Chu1TestKit/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -274,7 +273,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.taka.chu1testkit;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Debug;
 		};
@@ -285,6 +284,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Chu1TestKit/Chu1TestKit.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = J3U2LZ2886;
 				INFOPLIST_FILE = Chu1TestKit/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -292,7 +292,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.taka.chu1testkit;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Release;
 		};

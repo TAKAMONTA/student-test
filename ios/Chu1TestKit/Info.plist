@@ -18,6 +18,10 @@
   <string>$(CURRENT_PROJECT_VERSION)</string>
   <key>CFBundleDisplayName</key>
   <string>中1テストキット</string>
+  <key>UISupportedInterfaceOrientations</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+  </array>
   <key>UILaunchScreen</key>
   <dict/>
 </dict>
