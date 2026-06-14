@@ -30,6 +30,8 @@
   "vars": {
     "APP_URL": "https://chu1-testkit.t-nakaima.workers.dev",
     "NEXT_PUBLIC_POSTHOG_HOST": "https://eu.i.posthog.com",
-    "POSTHOG_HOST": "https://eu.i.posthog.com"
+    "POSTHOG_HOST": "https://eu.i.posthog.com",
+    "APPLE_BUNDLE_ID": "jp.taka.chu1testkit",
+    "APPLE_IAP_PRODUCT_ID": "chu1_testkit_lifetime"
   }
 }
